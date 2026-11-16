@@ -52,7 +52,7 @@ function parseIds(value: unknown): number[] {
 async function centralDraftOrders(orderIds: number[], context: Awaited<ReturnType<typeof resolveAllocationAccess>>) {
     const rows = await directusPage<Record<string, unknown>>("sales_order", {
         order_id: { _in: orderIds }, branch_id: { _eq: context.warehouses[0].id }, order_status: { _eq: "Draft" },
-    }, "order_id,branch_id,order_status,allocated_amount,modified_date,for_consolidation_at,approved_at", 150);
+    }, "order_id,branch_id,order_status,allocated_amount,modified_date,for_consolidation_at", 150, 0, "order_id");
     if (rows.length !== orderIds.length) throw new AllocationError("ORDER_NOT_ELIGIBLE", "Every selected order must still be a Draft at Central Warehouse.", 409);
     return rows;
 }
@@ -141,7 +141,7 @@ export async function POST(request: NextRequest, route: RouteContext) {
             const orderIds = [...new Set(updates.map(item => item.orderId))];
             const headers = await centralDraftOrders(orderIds, context);
             const orderHeaderMap = new Map(headers.map(row => [Number(row.order_id), row]));
-            const details = await directusPage<Record<string, unknown>>("sales_order_details", { order_id: { _in: orderIds } }, "detail_id,order_id,product_id,ordered_quantity,allocated_quantity,served_quantity,unit_price,net_amount,allocated_amount", 5000);
+            const details = await directusPage<Record<string, unknown>>("sales_order_details", { order_id: { _in: orderIds } }, "detail_id,order_id,product_id,ordered_quantity,allocated_quantity,served_quantity,unit_price,net_amount,allocated_amount", 5000, 0, "detail_id");
             const detailsById = new Map(details.map(row => [Number(row.detail_id), row]));
             if (updates.some(update => Number(detailsById.get(update.detailId)?.order_id) !== update.orderId)) throw new AllocationError("DETAIL_NOT_ELIGIBLE", "A selected line does not belong to its Draft order.", 409);
 
@@ -208,15 +208,15 @@ export async function POST(request: NextRequest, route: RouteContext) {
         if (operation === "approve") {
             const orderIds = parseIds(body.orderIds);
             const headers = await centralDraftOrders(orderIds, context);
-            const details = await directusPage<Record<string, unknown>>("sales_order_details", { order_id: { _in: orderIds } }, "detail_id,order_id,ordered_quantity,allocated_quantity", 5000);
+            const details = await directusPage<Record<string, unknown>>("sales_order_details", { order_id: { _in: orderIds } }, "detail_id,order_id,ordered_quantity,allocated_quantity", 5000, 0, "detail_id");
             for (const orderId of orderIds) {
                 const lines = details.filter(row => Number(row.order_id) === orderId);
                 if (!lines.length || lines.some(line => quantity(String(line.allocated_quantity ?? "0")) < quantity(String(line.ordered_quantity)))) throw new AllocationError("ALLOCATION_INCOMPLETE", `Order ${orderId} must have every line fully allocated before approval.`, 409);
             }
             const now = new Date().toISOString();
             const operations: WriteOperation[] = headers.map(header => ({ collection: "sales_order", id: Number(header.order_id),
-                payload: { order_status: "For Consolidation", for_consolidation_at: now, approved_at: now, modified_date: now },
-                rollback: { order_status: header.order_status, for_consolidation_at: header.for_consolidation_at ?? null, approved_at: header.approved_at ?? null, modified_date: header.modified_date ?? null } }));
+                payload: { order_status: "For Consolidation", for_consolidation_at: now, modified_date: now },
+                rollback: { order_status: header.order_status, for_consolidation_at: header.for_consolidation_at ?? null, modified_date: header.modified_date ?? null } }));
             await applyWithRollback(operations);
             return json({ success: true, message: `${orderIds.length} order(s) moved to For Consolidation.` });
         }

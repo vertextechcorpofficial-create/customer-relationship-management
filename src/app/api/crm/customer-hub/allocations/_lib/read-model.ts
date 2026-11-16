@@ -98,9 +98,9 @@ export async function allocationSnapshot(context: ReadContext, warehouse: Wareho
     // with order_status=Draft for this warehouse. No signed-in salesman filter.
     const headerFilter = { branch_id: warehouse.id === 0 ? { _null: true } : { _eq: warehouse.id }, order_status: { _eq: "Draft" } };
     const headerFields = "order_id,order_no,customer_code,salesman_id,supplier_id,branch_id,order_status,order_date,isCancelled,isDelivered";
-    let headers: RecordRow[];
-    try { headers = await readAll<RecordRow>("sales_order", headerFilter, `${headerFields},destination`, "order_id"); }
-    catch { headers = await readAll<RecordRow>("sales_order", headerFilter, headerFields, "order_id"); }
+    // `destination` is not part of the deployed sales_order schema. Requesting
+    // it first produces a noisy 403 before falling back to the valid fields.
+    const headers = await readAll<RecordRow>("sales_order", headerFilter, headerFields, "order_id");
     const excludedDrafts = 0;
     const excludedClosed = 0;
     const candidates = headers;

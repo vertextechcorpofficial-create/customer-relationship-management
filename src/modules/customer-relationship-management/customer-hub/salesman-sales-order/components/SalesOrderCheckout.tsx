@@ -101,9 +101,11 @@ export function SalesOrderCheckout({
             console.log(`[Checkout] Partial allocation detected. Showing workflow selection modal (Target: ${targetApprovedStatus}).`);
             setShowConfirmDialog(true);
         } else {
-            // ✅ Full allocation with stock.
-            console.log(`[Checkout] Full allocation detected. AutoApprovalEnabled=${isAutoApprovalEnabled}, HasValidCreditLimit=${hasValidCreditLimit}, IsExceeded=${isExceeded} => Target: ${targetApprovedStatus}.`);
-            onConfirm(targetApprovedStatus);
+            // New orders remain Draft by default. Approval/consolidation can be
+            // chosen explicitly in the confirmation flow instead of happening
+            // automatically when every line has stock.
+            console.log(`[Checkout] Full allocation detected. Saving Draft by default; eligible approval target would be ${targetApprovedStatus}.`);
+            onConfirm("Draft");
         }
     };
 

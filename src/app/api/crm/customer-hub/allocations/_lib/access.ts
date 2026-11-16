@@ -15,7 +15,11 @@ export async function directusPage<T>(collection: string, filter: object, fields
     if (!base || !token) throw new AllocationError("DATA_UNAVAILABLE", "Directus configuration is unavailable", 503);
     const query = new URLSearchParams({ filter: JSON.stringify(filter), fields, limit: String(limit), offset: String(offset), sort });
     const response = await fetch(`${base}/items/${collection}?${query}`, { headers: { Authorization: `Bearer ${token}` }, cache: "no-store", signal: AbortSignal.timeout(20000) });
-    if (!response.ok) throw new AllocationError("DATA_UNAVAILABLE", `Required ${collection} read failed`, 503);
+    if (!response.ok) {
+        // Log query metadata only: never expose credentials, user data or upstream bodies.
+        console.error("[allocations] Directus read failed", { collection, fields, sort, status: response.status });
+        throw new AllocationError("DATA_UNAVAILABLE", `Required ${collection} read failed (HTTP ${response.status}; sort: ${sort}). No writes were performed by this read.`, 503);
+    }
     const json = await response.json();
     if (!Array.isArray(json.data)) throw new AllocationError("DATA_UNAVAILABLE", "Unexpected database response", 503);
     return json.data;
