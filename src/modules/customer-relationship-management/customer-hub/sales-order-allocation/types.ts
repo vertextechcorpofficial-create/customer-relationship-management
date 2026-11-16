@@ -2,7 +2,7 @@ export interface Warehouse { id: number; name: string }
 export interface AllocationContext {
     user: { id: number; name: string };
     warehouses: Warehouse[];
-    capabilities: { read: boolean; preview: boolean; confirm: false; release: false; history: boolean; inventory: boolean };
+    capabilities: { read: boolean; preview: boolean; confirm: boolean; release: boolean; history: boolean; inventory: boolean };
 }
 export interface AllocationLine {
     id: number; productId: number; product: string; sku: string; unit: string;
@@ -28,7 +28,7 @@ export interface LegacyAudit {
     field: string; before: string; after: string; actorId: number | null;
 }
 export interface AllocationSnapshot {
-    warehouse: Warehouse; readAt: string; mode: "shadow-read-only";
+    warehouse: Warehouse; readAt: string; mode: "manual-write-enabled";
     blockers: string[]; orders: AllocationOrder[]; inventory: ReportedInventory[];
     inventoryError: string | null;
     history: { source: "legacy-field-audit"; rows: LegacyAudit[]; page: number; hasMore: boolean; error: string | null };

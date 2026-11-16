@@ -17,4 +17,16 @@ export const allocationProvider = {
         if (!response.ok) throw new Error([data.message, ...(data.blockers || [])].filter(Boolean).join("\n"));
         return data;
     },
+    saveAllocations: async (updates: { orderId: number; detailId: number; quantity: string }[]) => {
+        const response = await fetch(`${BASE}/allocate`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ updates }) });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Allocation save failed");
+        return data;
+    },
+    approveAllocations: async (orderIds: number[]) => {
+        const response = await fetch(`${BASE}/approve`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderIds }) });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Allocation approval failed");
+        return data;
+    },
 };

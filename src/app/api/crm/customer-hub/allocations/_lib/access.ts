@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import type { AllocationContext, Warehouse } from "@/modules/customer-relationship-management/customer-hub/sales-order-allocation/types";
 
 export const MODULE_PATH = "/crm/customer-hub/sales-order-allocation";
+export const CENTRAL_WAREHOUSE_NAME = "CENTRAL WAREHOUSE";
 export class AllocationError extends Error {
     constructor(public code: string, message: string, public status = 403) { super(message); }
 }
@@ -18,6 +19,17 @@ export async function directusPage<T>(collection: string, filter: object, fields
     const json = await response.json();
     if (!Array.isArray(json.data)) throw new AllocationError("DATA_UNAVAILABLE", "Unexpected database response", 503);
     return json.data;
+}
+
+export async function directusWrite(collection: string, id: number, payload: Record<string, unknown>): Promise<void> {
+    const base = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/+$/, "");
+    const token = process.env.DIRECTUS_STATIC_TOKEN;
+    if (!base || !token) throw new AllocationError("DATA_UNAVAILABLE", "Directus configuration is unavailable", 503);
+    const response = await fetch(`${base}/items/${collection}/${id}`, {
+        method: "PATCH", headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        body: JSON.stringify(payload), cache: "no-store", signal: AbortSignal.timeout(15000),
+    });
+    if (!response.ok) throw new AllocationError("WRITE_FAILED", `Could not update ${collection} record ${id}`, 502);
 }
 
 export async function readAll<T>(collection: string, filter: object, fields: string, sort = "id"): Promise<T[]> {
@@ -59,10 +71,11 @@ export async function resolveAllocationAccess(): Promise<ReadContext> {
     // Allocation module access is the explicit capability granting warehouse-wide
     // read scope. Salesman and branch-head assignments must not narrow the queue.
     const branches = await readAll<{ id: number; branch_name: string }>("branches", {}, "id,branch_name");
-    if (!branches.length) throw new AllocationError("WAREHOUSE_DENIED", "No warehouses are available for allocation review.");
+    const centralWarehouses = branches.filter(branch => branch.branch_name.trim().toUpperCase() === CENTRAL_WAREHOUSE_NAME);
+    if (centralWarehouses.length !== 1) throw new AllocationError("WAREHOUSE_DENIED", "The branches table must contain exactly one CENTRAL WAREHOUSE branch for allocation.");
     return { user: { id: user.user_id, name: `${user.user_fname} ${user.user_lname}`.trim() },
-        warehouses: branches.map(branch => ({ id: branch.id, name: branch.branch_name })), sessionToken: token,
-        capabilities: { read: true, preview: true, confirm: false, release: false, history: true, inventory: true } };
+        warehouses: centralWarehouses.map(branch => ({ id: branch.id, name: branch.branch_name })), sessionToken: token,
+        capabilities: { read: true, preview: false, confirm: true, release: false, history: true, inventory: true } };
 }
 
 export function requireWarehouse(context: AllocationContext, value: unknown): Warehouse {

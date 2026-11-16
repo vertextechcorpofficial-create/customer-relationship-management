@@ -6,7 +6,7 @@ import { AllocationError, directusPage, readAll, requireWarehouse, type ReadCont
 
 export const READINESS_BLOCKERS = [
     "Spring running inventory does not expose authoritative active reservations, available-to-promise stock, base-UOM ownership rules or an inventory version.",
-    "No audited transactional reservation/confirmation or idempotency endpoint is available. Confirmation and release are disabled.",
+    "Saved allocations update order quantities but do not reserve or decrement inventory. Inventory reservation and release are not integrated.",
     "Legacy allocation quantities require reconciliation, and approval eligibility must be approved before reservations can begin.",
 ];
 
@@ -121,10 +121,12 @@ export async function allocationSnapshot(context: ReadContext, warehouse: Wareho
         const uom = product?.unit_of_measurement as RecordRow | undefined;
         const ordered = safeQuantity(detail.ordered_quantity), legacyAllocated = safeQuantity(detail.allocated_quantity), served = safeQuantity(detail.served_quantity);
         const quantityIssue = ordered === null || legacyAllocated === null || served === null;
+        const accounted = !quantityIssue ? (quantity(legacyAllocated!) > quantity(served!) ? quantity(legacyAllocated!) : quantity(served!)) : 0n;
+        const remainingDemand = !quantityIssue && quantity(ordered!) > accounted ? quantity(ordered!) - accounted : 0n;
         const line: AllocationLine = { id: Number(detail.detail_id), productId: Number(detail.product_id), product: String(product?.product_name || `SKU ${detail.product_id}`), sku: String(product?.product_code || detail.product_id),
             unit: String(uom?.unit_shortcut || uom?.unit_name || "Unverified UOM"), ordered: ordered ?? "Unverified", legacyAllocated: legacyAllocated ?? "Unverified", served: served ?? "Unverified",
             // Legacy allocated and served may overlap. Do not subtract them twice.
-            unaccountedDemand: !quantityIssue && quantity(legacyAllocated!) === 0n && quantity(served!) === 0n ? ordered : null,
+            unaccountedDemand: !quantityIssue ? quantityText(remainingDemand) : null,
             unitPrice: String(detail.unit_price ?? "Unknown"), orderedNet: String(detail.net_amount ?? "Unknown"), quantityIssue };
         const id = Number(detail.order_id);
         grouped.set(id, [...(grouped.get(id) || []), line]);
@@ -159,7 +161,7 @@ export async function allocationSnapshot(context: ReadContext, warehouse: Wareho
     let history: AllocationSnapshot["history"];
     try { history = await legacyHistory(lineOrders, historyPage); }
     catch { history = { source: "legacy-field-audit", rows: [], page: historyPage, hasMore: false, error: "Legacy allocation-field audit is unavailable. This is not a reservation event ledger." }; }
-    return { warehouse, readAt: new Date().toISOString(), mode: "shadow-read-only", blockers: READINESS_BLOCKERS, orders, inventory, inventoryError, history,
+    return { warehouse, readAt: new Date().toISOString(), mode: "manual-write-enabled", blockers: READINESS_BLOCKERS, orders, inventory, inventoryError, history,
         summary: { orders: orders.length, fullLegacy: orders.filter(row => row.allocationState === "Legacy full").length, partialLegacy: orders.filter(row => row.allocationState === "Legacy partial").length,
             unallocated: orders.filter(row => row.allocationState === "Unallocated").length, excludedDrafts, excludedClosed, allocatedByUnit: Object.fromEntries([...allocated].map(([key, value]) => [key, quantityText(value)])) } };
 }
