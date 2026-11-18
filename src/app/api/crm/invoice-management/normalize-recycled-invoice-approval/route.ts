@@ -56,6 +56,17 @@ interface DirectusUserRow {
     user_lname?: string;
 }
 
+interface DirectusOrderRow {
+    order_id: number;
+    customer_code?: string;
+}
+
+interface DirectusCustomerRow {
+    customer_code: string;
+    customer_name?: string;
+    store_name?: string;
+}
+
 interface DirectusInvoiceDetailRow {
     invoice_no: number;
     product_id: number;
@@ -108,6 +119,34 @@ export async function GET() {
             }
         }
 
+        // Resolve customer display names through the sales order's customer code.
+        const orderIds = Array.from(new Set(requests.map(r => r.order_id).filter(Boolean)));
+        const customerNameByOrder: Record<number, string> = {};
+        if (orderIds.length > 0) {
+            try {
+                const orderUrl = `${DIRECTUS_URL}/items/sales_order?filter[order_id][_in]=${orderIds.join(",")}&fields=order_id,customer_code`;
+                const orderRes = await fetchWithRetry(orderUrl, { headers, cache: "no-store" });
+                const orderJson = await orderRes.json();
+                const orders: DirectusOrderRow[] = orderJson.data || [];
+                const customerCodes = Array.from(new Set(orders.map(order => order.customer_code).filter((code): code is string => !!code)));
+                const customerNameByCode: Record<string, string> = {};
+                if (customerCodes.length > 0) {
+                    const customerUrl = `${DIRECTUS_URL}/items/customer?filter[customer_code][_in]=${customerCodes.map(encodeURIComponent).join(",")}&fields=customer_code,customer_name,store_name`;
+                    const customerRes = await fetchWithRetry(customerUrl, { headers, cache: "no-store" });
+                    const customerJson = await customerRes.json();
+                    const customers: DirectusCustomerRow[] = customerJson.data || [];
+                    customers.forEach(customer => {
+                        customerNameByCode[customer.customer_code] = customer.customer_name || customer.store_name || "";
+                    });
+                }
+                orders.forEach(order => {
+                    if (order.customer_code) customerNameByOrder[order.order_id] = customerNameByCode[order.customer_code] || "";
+                });
+            } catch {
+                // Customer names are supplemental; still return requests if lookup fails.
+            }
+        }
+
         // Fetch invoice details using invoice_id
         const invoiceIds = Array.from(new Set(requests.map((r) => r.invoice_id).filter(Boolean)));
         const detailsMap: Record<number, (DirectusInvoiceDetailRow & { product_name: string | null })[]> = {};
@@ -151,6 +190,7 @@ export async function GET() {
         const enriched = requests.map((r) => ({
             ...r,
             requested_by_name: userMap[r.requested_by] ?? `User #${r.requested_by}`,
+            customer_name: customerNameByOrder[r.order_id] || "",
             invoice_details: detailsMap[r.invoice_id] || []
         }));
 
