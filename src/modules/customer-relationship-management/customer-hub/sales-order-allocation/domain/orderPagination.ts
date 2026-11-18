@@ -42,7 +42,7 @@ export function paginateOrderColumns<T>(orders: readonly T[], requestedPage: num
 export function groupCustomerColumns<T extends CustomerOrderIdentity>(orders: readonly T[], startIndex: number, previousOrder?: CustomerOrderIdentity) {
     const groups: { customer: string; count: number; continued: boolean }[] = [];
     for (const [index, order] of orders.entries()) {
-        const customer = `${order.customer} (${order.customerCode})`;
+        const customer = order.customer;
         const previous = groups[groups.length - 1];
         if (previous?.customer === customer) previous.count += 1;
         else groups.push({ customer, count: 1, continued: index === 0 && startIndex > 0 && previousOrder?.customer === order.customer && previousOrder.customerCode === order.customerCode });

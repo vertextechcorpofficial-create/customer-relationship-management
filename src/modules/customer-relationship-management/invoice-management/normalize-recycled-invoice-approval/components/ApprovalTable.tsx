@@ -96,7 +96,8 @@ export function ApprovalTable({ data, isLoading, onApprove, onReject, isProcessi
                     <thead className="bg-gray-50 text-gray-700 border-b">
                         <tr>
                             <th className="px-4 py-3">Invoice No</th>
-                            <th className="px-4 py-3">Order ID</th>
+                            <th className="px-4 py-3">Order Number</th>
+                            <th className="px-4 py-3">Customer Name</th>
                             <th className="px-4 py-3">Requested By</th>
                             <th className="px-4 py-3">Requested Date</th>
                             <th className="px-4 py-3">Status</th>
@@ -107,13 +108,13 @@ export function ApprovalTable({ data, isLoading, onApprove, onReject, isProcessi
                     <tbody>
                         {isLoading ? (
                             <tr>
-                                <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                                <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
                                     Loading...
                                 </td>
                             </tr>
                         ) : paginatedData.length === 0 ? (
                             <tr>
-                                <td colSpan={7} className="px-4 py-8 text-center text-gray-500">
+                                <td colSpan={8} className="px-4 py-8 text-center text-gray-500">
                                     No requests found.
                                 </td>
                             </tr>
@@ -122,6 +123,7 @@ export function ApprovalTable({ data, isLoading, onApprove, onReject, isProcessi
                                 <tr key={r.id} className="border-b hover:bg-gray-50 transition-colors">
                                     <td className="px-4 py-3 font-medium">{r.invoice_no}</td>
                                     <td className="px-4 py-3 text-gray-600">{r.order_id}</td>
+                                    <td className="px-4 py-3 text-gray-800">{r.customer_name || "—"}</td>
                                     <td className="px-4 py-3 text-gray-800">{r.requested_by_name ?? `User #${r.requested_by}`}</td>
                                     <td className="px-4 py-3 text-gray-600">
                                         {new Date(r.requested_date).toLocaleString("en-US", {
