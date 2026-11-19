@@ -50,7 +50,7 @@ export function ProductSearchSelect({
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className={cn("w-full justify-between h-10 border-slate-200 rounded-xl px-4 text-sm font-medium", !value && "text-muted-foreground", className)}
+                    className={cn("w-full justify-between h-10 border-border rounded-xl px-4 text-sm font-medium", !value && "text-muted-foreground", className)}
                     disabled={disabled}
                 >
                     <span className="truncate">{selectedLabel || placeholder}</span>
@@ -58,7 +58,7 @@ export function ProductSearchSelect({
                 </Button>
             </PopoverTrigger>
             <PopoverContent 
-                className="w-[--radix-popover-trigger-width] p-0 border-slate-200 shadow-xl rounded-xl" 
+                className="w-[--radix-popover-trigger-width] p-0 border-border shadow-xl rounded-xl" 
                 align="start"
                 onPointerDownOutside={() => {
                     // Prevent closing when clicking outside if needed, 

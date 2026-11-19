@@ -19,7 +19,7 @@ export function StatsCards({ totalSalesmen, targetsSet, completionRate }: StatsC
                         <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Total Salesmen</p>
                         <p className="text-3xl font-black">{totalSalesmen}</p>
                     </div>
-                    <div className="w-14 h-14 rounded-2xl bg-blue-50 flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-2xl bg-blue-500/10 flex items-center justify-center">
                         <Users className="w-7 h-7 text-blue-500" />
                     </div>
                 </CardContent>
@@ -31,7 +31,7 @@ export function StatsCards({ totalSalesmen, targetsSet, completionRate }: StatsC
                         <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Targets Set</p>
                         <p className="text-3xl font-black">{targetsSet}</p>
                     </div>
-                    <div className="w-14 h-14 rounded-2xl bg-emerald-50 flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 flex items-center justify-center">
                         <Target className="w-7 h-7 text-emerald-500" />
                     </div>
                 </CardContent>
@@ -43,7 +43,7 @@ export function StatsCards({ totalSalesmen, targetsSet, completionRate }: StatsC
                         <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Completion Rate</p>
                         <p className="text-3xl font-black">{completionRate}%</p>
                     </div>
-                    <div className="w-14 h-14 rounded-2xl bg-purple-50 flex items-center justify-center">
+                    <div className="w-14 h-14 rounded-2xl bg-purple-500/10 flex items-center justify-center">
                         <TrendingUp className="w-7 h-7 text-purple-500" />
                     </div>
                 </CardContent>
@@ -51,3 +51,4 @@ export function StatsCards({ totalSalesmen, targetsSet, completionRate }: StatsC
         </div>
     );
 }
+

@@ -56,7 +56,7 @@ export function InvoiceOnholdDataTable() {
 
   if (isError) {
     return (
-      <div className="flex flex-col justify-center items-center h-64 border rounded-md border-red-200 bg-red-50 p-4">
+      <div className="flex flex-col justify-center items-center h-64 border rounded-md border-red-500/30 bg-red-500/10 p-4">
         <p className="text-red-600 mb-4">{error?.message || "An error occurred while fetching orders."}</p>
         <Button onClick={() => refetch()} variant="outline">Try Again</Button>
       </div>
@@ -72,16 +72,16 @@ export function InvoiceOnholdDataTable() {
           onChange={(event) =>
             table.getColumn("order_no")?.setFilterValue(event.target.value)
           }
-          className="max-w-sm bg-white"
+          className="max-w-sm bg-card"
         />
         <div className="text-sm text-muted-foreground">
           Showing {table.getFilteredRowModel().rows.length} orders
         </div>
       </div>
 
-      <div className="rounded-md border bg-white shadow-sm overflow-hidden">
+      <div className="rounded-md border bg-card shadow-sm overflow-hidden">
         <Table>
-          <TableHeader className="bg-slate-50">
+          <TableHeader className="bg-muted">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -105,7 +105,7 @@ export function InvoiceOnholdDataTable() {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="hover:bg-slate-50 transition-colors"
+                  className="hover:bg-muted transition-colors"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -157,3 +157,4 @@ export function InvoiceOnholdDataTable() {
     </div>
   );
 }
+
