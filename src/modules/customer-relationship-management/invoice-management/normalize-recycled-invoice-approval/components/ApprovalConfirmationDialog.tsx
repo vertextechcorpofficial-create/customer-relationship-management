@@ -77,6 +77,7 @@ export function ApprovalConfirmationDialog({ isOpen, onOpenChange, target, actio
                                                 <th className="font-medium p-2">Product Name</th>
                                                 <th className="font-medium p-2 text-right">UOM</th>
                                                 <th className="font-medium p-2 text-right">Qty</th>
+                                                <th className="font-medium p-2 text-right">UOM</th>
                                                 <th className="font-medium p-2 text-right">Unit Price</th>
                                                 <th className="font-medium p-2 text-right">Total</th>
                                             </tr>
@@ -89,6 +90,7 @@ export function ApprovalConfirmationDialog({ isOpen, onOpenChange, target, actio
                                                     </td>
                                                     <td className="p-2 text-right">{item.uom || "—"}</td>
                                                     <td className="p-2 text-right">{item.quantity}</td>
+                                                    <td className="p-2 text-right">{item.uom || "—"}</td>
                                                     <td className="p-2 text-right">
                                                         {item.unit_price?.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                     </td>
