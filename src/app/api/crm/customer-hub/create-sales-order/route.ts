@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { loadCustomerProductDiscounts, resolveCustomerProductDiscount } from "@/modules/customer-relationship-management/customer-hub/shared/customerProductDiscount";
+import { latestPriceOverrides, type PriceOverrideRow } from "./latestPriceOverrides";
 
 const COOKIE_NAME = "vos_access_token";
 
@@ -594,7 +596,8 @@ export async function GET(req: NextRequest) {
                 });
 
                 const allIds = Array.from(allProductsMap.keys());
-                const l1Items = await fetchInChunks<DiscountItem>(`${DIRECTUS_URL}/items/product_per_customer?filter[customer_code][_eq]=${customerCode}&fields=product_id,unit_price,discount_type`, allIds, "product_id");
+                const l1Rules = await loadCustomerProductDiscounts(DIRECTUS_URL, fetchHeaders, customerCode, allIds);
+                const l1Items = Array.from(l1Rules.values());
                 const l2Raw: DiscountItem[] = (await (await fetch(`${DIRECTUS_URL}/items/supplier_category_discount_per_customer?filter[customer_code][_eq]=${customerCode}&filter[supplier_id][_eq]=${supplierId}&filter[deleted_at][_null]=true&sort=-id&limit=-1`, { headers: fetchHeaders })).json()).data || [];
                 // Sort descending by id as an in-memory guarantee that the latest created/updated record is always first
                 const l2Items = l2Raw
@@ -612,16 +615,13 @@ export async function GET(req: NextRequest) {
 
                 const priceOverrides: Record<number, number> = {};
                 if (priceTypeId) {
-                    const poRes = await fetch(`${DIRECTUS_URL}/items/product_per_price_type?filter[price_type_id][_eq]=${priceTypeId}&filter[status][_in]=published,approved&fields=product_id,price&limit=-1`, { headers: fetchHeaders });
-                    const poData: { product_id: number | string | { id?: number; product_id?: number }; price: number | string }[] = (await poRes.json()).data || [];
-                    poData.forEach((po) => {
-                        const pid = po.product_id && typeof po.product_id === 'object' ? (po.product_id.id || po.product_id.product_id) : po.product_id;
-                        if (pid) priceOverrides[Number(pid)] = Number(po.price);
-                    });
+                    const poRes = await fetch(`${DIRECTUS_URL}/items/product_per_price_type?filter[price_type_id][_eq]=${priceTypeId}&filter[status][_in]=published,approved&fields=id,product_id,price,updated_at&limit=-1`, { headers: fetchHeaders });
+                    const poData: PriceOverrideRow[] = (await poRes.json()).data || [];
+                    Object.assign(priceOverrides, latestPriceOverrides(poData));
                 }
 
                 const typeIds = new Set(
-                    l1Items.map((i: DiscountItem) => i.discount_type)
+                    l1Items.map((i) => i.discount_type)
                         .concat(l2Items.map((i: DiscountItem) => i.discount_type))
                         .concat(l4Items.map((i: DiscountItem) => i.discount_type_id))
                         .concat([customerData?.discount_type])
@@ -657,8 +657,12 @@ export async function GET(req: NextRequest) {
 
                     let price = priceOverrides[Number(p.product_id)] || 0;
 
-                    const l1 = l1Items.find((item: DiscountItem) => item.product_id === p.product_id);
-                    if (l1) { winId = l1.discount_type; price = Number(l1.unit_price) || price; level = "Customer-Specific Price Override"; }
+                    const l1 = resolveCustomerProductDiscount(l1Rules, p.product_id, p.parent_id, price);
+                    price = l1.price;
+                    if (l1.discountTypeId || l1Rules.has(Number(p.product_id))) {
+                        winId = l1.discountTypeId;
+                        level = "Customer-Specific Price Override";
+                    }
 
                     if (!winId) {
                         // Extract raw numeric ID from Directus expanded object

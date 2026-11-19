@@ -83,7 +83,7 @@ export function NormalizeInvoiceTable() {
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
                 <input
                     type="text"
-                    placeholder="Search by Invoice No or Order ID..."
+                    placeholder="Search by Invoice No or Order Name..."
                     className="p-2 border border-gray-300 rounded-md w-full sm:max-w-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     value={searchTerm}
                     onChange={(e) => { setSearchTerm(e.target.value); setPage(1); }}
@@ -105,7 +105,7 @@ export function NormalizeInvoiceTable() {
                         <thead className="bg-gray-50 text-gray-700 border-b">
                             <tr>
                                 <th className="px-4 py-3">Invoice No</th>
-                                <th className="px-4 py-3">Order ID</th>
+                                <th className="px-4 py-3">Order Name</th>
                                 <th className="px-4 py-3">Customer</th>
                                 <th className="px-4 py-3">Transaction Status</th>
                                 <th className="px-4 py-3">Order Status</th>

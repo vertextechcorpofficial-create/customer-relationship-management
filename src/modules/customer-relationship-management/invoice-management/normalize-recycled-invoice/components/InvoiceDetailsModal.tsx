@@ -50,7 +50,7 @@ export function InvoiceDetailsModal({ isOpen, onClose, invoice, details, isLoadi
                 
                 <div className="p-6 overflow-y-auto flex-1">
                     <div className="mb-6 grid grid-cols-2 gap-4 text-sm">
-                        <div><span className="text-gray-500">Order ID:</span> {invoice.order_id}</div>
+                        <div><span className="text-gray-500">Order Name:</span> {invoice.order_id}</div>
                         <div><span className="text-gray-500">Transaction Status:</span> {invoice.transaction_status}</div>
                         <div><span className="text-gray-500">Order Status:</span> {invoice.order_status}</div>
                         <div><span className="text-gray-500">Not Fulfilled At:</span> {new Date(invoice.not_fulfilled_at).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}</div>
