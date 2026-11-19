@@ -78,6 +78,7 @@ interface DirectusInvoiceDetailRow {
 interface DirectusProductRow {
     product_id: number;
     product_name: string;
+    unit_of_measurement?: { unit_shortcut?: string; unit_name?: string } | null;
 }
 
 interface DirectusOrderDetailRow {
@@ -149,7 +150,7 @@ export async function GET() {
 
         // Fetch invoice details using invoice_id
         const invoiceIds = Array.from(new Set(requests.map((r) => r.invoice_id).filter(Boolean)));
-        const detailsMap: Record<number, (DirectusInvoiceDetailRow & { product_name: string | null })[]> = {};
+        const detailsMap: Record<number, (DirectusInvoiceDetailRow & { product_name: string | null; uom: string | null })[]> = {};
         if (invoiceIds.length > 0) {
             try {
                 const detailsUrl = `${DIRECTUS_URL}/items/sales_invoice_details?filter[invoice_no][_in]=${invoiceIds.join(",")}&fields=invoice_no,product_id,quantity,unit_price,total_amount`;
@@ -159,15 +160,15 @@ export async function GET() {
 
                 // Fetch product names
                 const productIds = Array.from(new Set(details.map((d) => d.product_id).filter(Boolean)));
-                const productMap: Record<number, string> = {};
+                const productMap: Record<number, DirectusProductRow> = {};
                 if (productIds.length > 0) {
                     try {
-                        const prodUrl = `${DIRECTUS_URL}/items/products?filter[product_id][_in]=${productIds.join(",")}&fields=product_id,product_name`;
+                        const prodUrl = `${DIRECTUS_URL}/items/products?filter[product_id][_in]=${productIds.join(",")}&fields=product_id,product_name,unit_of_measurement.unit_shortcut,unit_of_measurement.unit_name`;
                         const prodRes = await fetchWithRetry(prodUrl, { headers, cache: "no-store" });
                         const prodJson = await prodRes.json();
                         const products: DirectusProductRow[] = prodJson.data || [];
                         products.forEach((p) => {
-                            productMap[p.product_id] = p.product_name;
+                            productMap[p.product_id] = p;
                         });
                     } catch {
                         // Ignore error if fetching products fails
@@ -179,7 +180,8 @@ export async function GET() {
                     if (!detailsMap[invId]) detailsMap[invId] = [];
                     detailsMap[invId].push({
                         ...d,
-                        product_name: productMap[d.product_id] || null
+                        product_name: productMap[d.product_id]?.product_name || null,
+                        uom: productMap[d.product_id]?.unit_of_measurement?.unit_shortcut || productMap[d.product_id]?.unit_of_measurement?.unit_name || null,
                     });
                 });
             } catch {
