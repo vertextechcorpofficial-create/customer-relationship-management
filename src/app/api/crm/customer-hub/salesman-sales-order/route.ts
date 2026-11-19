@@ -11,6 +11,25 @@ const json = (data: unknown) => NextResponse.json(data, { headers: { "Cache-Cont
 function failure(error: unknown) {
     return NextResponse.json({ success: false, error: error instanceof ScopeError ? error.message : "Sales order service unavailable" }, { status: error instanceof ScopeError ? error.status : 503, headers: { "Cache-Control": "private, no-store" } });
 }
+function isSameOriginSubmission(req: NextRequest) {
+    const origin = req.headers.get("origin");
+    if (!origin) return true;
+
+    try {
+        const submitted = new URL(origin);
+        // Behind a reverse proxy, Next's request URL can use the proxy's
+        // internal host/protocol. Prefer the public forwarding headers supplied
+        // by the hosting proxy, and fall back to the request host locally.
+        const forwardedHost = req.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+        const expectedHost = forwardedHost || req.headers.get("host") || req.nextUrl.host;
+        const forwardedProto = req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+        const expectedProtocol = forwardedProto ? `${forwardedProto.replace(/:$/, "")}:` : req.nextUrl.protocol;
+        return submitted.host.toLowerCase() === expectedHost.toLowerCase()
+            && submitted.protocol.toLowerCase() === expectedProtocol.toLowerCase();
+    } catch {
+        return false;
+    }
+}
 function request(req: NextRequest, params: Record<string, unknown>) {
     const url = new URL(req.url);
     url.search = "";
@@ -141,7 +160,7 @@ const submissionSchema = z.object({ header: z.object({
 
 export async function POST(req: NextRequest) {
     try {
-        if (req.headers.get("origin") && req.headers.get("origin") !== req.nextUrl.origin) throw new ScopeError("Cross-origin order submission denied");
+        if (!isSameOriginSubmission(req)) throw new ScopeError("Cross-origin order submission denied");
         const context = await resolveSalesmanContext();
         const parsed = submissionSchema.safeParse(await req.json());
         if (!parsed.success) throw new ScopeError("Invalid sales order payload", 400);
