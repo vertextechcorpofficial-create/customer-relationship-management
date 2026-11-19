@@ -109,11 +109,11 @@ export function SalesOrderHeader({
 
     return (
         <Card className="shadow-sm border-muted-foreground/10 overflow-hidden">
-            <CardHeader className="py-4 px-6 flex flex-row items-center justify-between border-b bg-slate-50/50">
+            <CardHeader className="py-4 px-6 flex flex-row items-center justify-between border-b bg-muted/50">
                 <div className="flex items-center gap-3">
-                    <span className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none">Price Type</span>
+                    <span className="text-[10px] uppercase font-black text-muted-foreground tracking-widest leading-none">Price Type</span>
                     <Select value={priceTypeId?.toString() || ""} onValueChange={onPriceTypeChange}>
-                        <SelectTrigger className="h-7 min-w-[110px] bg-sky-50 border-sky-200 text-sky-700 text-[10px] font-black uppercase hover:bg-sky-100 transition-colors">
+                        <SelectTrigger className="h-7 min-w-[110px] bg-sky-500/10 border-sky-500/30 text-sky-700 text-[10px] font-black uppercase hover:bg-sky-500/100/25 transition-colors">
                             <SelectValue placeholder="Price Type" />
                         </SelectTrigger>
                         <SelectContent>
@@ -131,9 +131,9 @@ export function SalesOrderHeader({
                         Configuration Phase
                     </div>
                     {previewOrderNo && (
-                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-slate-200/50 border border-slate-300/50">
-                            <span className="text-[9px] font-black text-slate-500 uppercase tracking-tighter">Draft SO#</span>
-                            <span className="text-[10px] font-bold text-slate-900 tracking-tight font-mono">{previewOrderNo}</span>
+                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-muted/50 border border-border/50">
+                            <span className="text-[9px] font-black text-muted-foreground uppercase tracking-tighter">Draft SO#</span>
+                            <span className="text-[10px] font-bold text-foreground tracking-tight font-mono">{previewOrderNo}</span>
                         </div>
                     )}
                 </div>
@@ -339,7 +339,7 @@ export function SalesOrderHeader({
                             type="date"
                             value={dueDate || ""}
                             onChange={(e) => onDueDateChange(e.target.value)}
-                            className="pl-9 h-9 text-xs bg-slate-50/50 opacity-80 cursor-not-allowed"
+                            className="pl-9 h-9 text-xs bg-muted/50 opacity-80 cursor-not-allowed"
                             disabled
                             required
                         />
@@ -404,12 +404,12 @@ export function SalesOrderHeader({
                         <label className="text-xs font-bold uppercase text-muted-foreground">Credit Limit</label>
                         {creditLimit > 0 ? (
                             isExceeded ? (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-black text-rose-600 bg-rose-50 border border-rose-200 px-1.5 py-0.5 rounded">
+                                <span className="inline-flex items-center gap-1 text-[10px] font-black text-rose-600 bg-rose-500/10 border border-rose-500/30 px-1.5 py-0.5 rounded">
                                     <AlertCircle className="w-3 h-3 text-rose-500" />
                                     Exceeded
                                 </span>
                             ) : (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded">
+                                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-500/10 border border-emerald-500/30 px-1.5 py-0.5 rounded">
                                     <CheckCircle2 className="w-3 h-3 text-emerald-500" />
                                     Within Limit
                                 </span>
@@ -419,13 +419,13 @@ export function SalesOrderHeader({
                         ) : null}
                     </div>
                     <div className="relative">
-                        <CreditCard className={cn("absolute left-2.5 top-2.5 h-3.5 w-3.5", isExceeded ? "text-rose-500" : "text-slate-400")} />
+                        <CreditCard className={cn("absolute left-2.5 top-2.5 h-3.5 w-3.5", isExceeded ? "text-rose-500" : "text-muted-foreground")} />
                         <Input
                             type="text"
                             value={selectedCustomer ? formatCurrency(creditLimit) : "—"}
                             className={cn(
                                 "pl-9 h-9 text-xs font-semibold cursor-not-allowed opacity-90",
-                                isExceeded ? "border-rose-200 bg-rose-50/30 text-rose-700" : "bg-slate-50/50"
+                                isExceeded ? "border-rose-500/30 bg-rose-500/10 text-rose-700" : "bg-muted/50"
                             )}
                             readOnly
                             disabled
@@ -462,10 +462,10 @@ export function SalesOrderHeader({
                             className={cn(
                                 "pl-9 h-9 text-xs font-bold cursor-not-allowed opacity-90",
                                 isExceeded
-                                    ? "border-rose-300 bg-rose-50/50 text-rose-700 font-extrabold"
+                                    ? "border-rose-500/40 bg-rose-500/10 text-rose-700 font-extrabold"
                                     : receivableAmount > 0
-                                    ? "border-amber-200 bg-amber-50/30 text-amber-800"
-                                    : "bg-slate-50/50 text-slate-700"
+                                    ? "border-amber-500/30 bg-amber-500/10 text-amber-800"
+                                    : "bg-muted/50 text-foreground"
                             )}
                             readOnly
                             disabled
@@ -491,7 +491,7 @@ export function SalesOrderHeader({
                             type="text"
                             placeholder="Terms"
                             value={paymentTermsList.find(pt => Number(pt.id) === Number(paymentTerms))?.payment_name || "N/A"}
-                            className="pl-9 h-9 text-xs border-sky-100 bg-sky-50/20 focus-visible:ring-sky-500 opacity-80 cursor-not-allowed font-bold text-sky-700"
+                            className="pl-9 h-9 text-xs border-sky-500/20 bg-sky-500/10 focus-visible:ring-sky-500 opacity-80 cursor-not-allowed font-bold text-sky-700"
                             readOnly
                             disabled
                         />
@@ -501,3 +501,4 @@ export function SalesOrderHeader({
         </Card>
     );
 }
+

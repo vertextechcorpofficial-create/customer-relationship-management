@@ -75,7 +75,7 @@ export function SalesOrderEncoding({
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
                                 placeholder="Search products..."
-                                className="pl-9 h-9 text-xs shadow-inner bg-slate-50/50"
+                                className="pl-9 h-9 text-xs shadow-inner bg-muted/50"
                                 value={productSearch}
                                 onChange={(e) => setProductSearch(e.target.value)}
                             />
@@ -83,10 +83,10 @@ export function SalesOrderEncoding({
                         <Button
                             variant="outline"
                             size="icon"
-                            className={`h-9 w-9 border-slate-200 transition-all ${
+                            className={`h-9 w-9 border-border transition-all ${
                                 showOnlyAvailable 
-                                ? "bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600 shadow-md shadow-emerald-500/20" 
-                                : "bg-white text-slate-400 hover:bg-slate-50"
+                                ? "bg-emerald-500/100 text-white border-emerald-500 hover:bg-emerald-600 shadow-md shadow-emerald-500/20" 
+                                : "bg-card text-muted-foreground hover:bg-muted"
                             }`}
                             onClick={() => setShowOnlyAvailable(!showOnlyAvailable)}
                             title={showOnlyAvailable ? "Showing In-Stock Only" : "Show All Products"}
@@ -97,7 +97,7 @@ export function SalesOrderEncoding({
                             variant="outline"
                             size="icon"
                             disabled={loadingProducts || !onRefreshProducts}
-                            className="h-9 w-9 border-slate-200 bg-white text-slate-500 hover:text-primary hover:bg-slate-50 transition-all shadow-sm shrink-0"
+                            className="h-9 w-9 border-border bg-card text-muted-foreground hover:text-primary hover:bg-muted transition-all shadow-sm shrink-0"
                             onClick={onRefreshProducts}
                             title="Force Refresh / Sync Catalog"
                         >
@@ -127,12 +127,12 @@ export function SalesOrderEncoding({
 
                                                 <div className="flex flex-wrap gap-1 mt-1">
                                                     {p.brand_name && (
-                                                        <Badge variant="outline" className="text-[7px] font-black uppercase px-1 py-0 border-blue-100 bg-blue-50/50 text-blue-500 leading-none">
+                                                        <Badge variant="outline" className="text-[7px] font-black uppercase px-1 py-0 border-blue-500/20 bg-blue-500/10 text-blue-500 leading-none">
                                                             {p.brand_name}
                                                         </Badge>
                                                     )}
                                                     {p.category_name && (
-                                                        <Badge variant="outline" className="text-[7px] font-black uppercase px-1 py-0 border-slate-100 bg-slate-50/50 text-slate-400 leading-none">
+                                                        <Badge variant="outline" className="text-[7px] font-black uppercase px-1 py-0 border-border bg-muted/50 text-muted-foreground leading-none">
                                                             {p.category_name}
                                                         </Badge>
                                                     )}
@@ -155,7 +155,7 @@ export function SalesOrderEncoding({
                                                         </span>
                                                     </div>
                                                     <div className="flex flex-col items-end gap-1">
-                                                        <Badge variant="outline" className={`text-[9px] font-black uppercase px-1 py-0 leading-none ${Number(p.available_qty) > 0 ? "border-emerald-200 bg-emerald-50 text-emerald-600" : "border-red-200 bg-red-50 text-red-600"}`}>
+                                                        <Badge variant="outline" className={`text-[9px] font-black uppercase px-1 py-0 leading-none ${Number(p.available_qty) > 0 ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-600" : "border-red-500/30 bg-red-500/10 text-red-600"}`}>
                                                             {Number(p.available_qty) || 0} IN STOCK
                                                         </Badge>
                                                     </div>
@@ -209,15 +209,15 @@ export function SalesOrderEncoding({
                                         <TableRow key={item.id} className="hover:bg-muted/10">
                                             <TableCell>
                                                 <div className="flex flex-col">
-                                                    <span className="font-bold text-[11px] leading-tight text-slate-900">{item.product.display_name}</span>
+                                                    <span className="font-bold text-[11px] leading-tight text-foreground">{item.product.display_name}</span>
                                                     <div className="flex flex-wrap gap-1 mt-1">
                                                         {item.product.brand_name && (
-                                                            <Badge variant="outline" className="text-[7px] font-black uppercase px-1 py-0 border-blue-100 bg-blue-50/50 text-blue-500">
+                                                            <Badge variant="outline" className="text-[7px] font-black uppercase px-1 py-0 border-blue-500/20 bg-blue-500/10 text-blue-500">
                                                                 {item.product.brand_name}
                                                             </Badge>
                                                         )}
                                                         {item.product.category_name && (
-                                                            <Badge variant="outline" className="text-[7px] font-black uppercase px-1 py-0 border-slate-100 bg-slate-50/50 text-slate-400">
+                                                            <Badge variant="outline" className="text-[7px] font-black uppercase px-1 py-0 border-border bg-muted/50 text-muted-foreground">
                                                                 {item.product.category_name}
                                                             </Badge>
                                                         )}
@@ -226,7 +226,7 @@ export function SalesOrderEncoding({
                                             </TableCell>
 
                                             <TableCell className="text-center border-x border-muted/20">
-                                                <Badge variant="outline" className="text-[9px] font-bold px-1.5 py-0 border-slate-200 text-slate-500 whitespace-nowrap">
+                                                <Badge variant="outline" className="text-[9px] font-bold px-1.5 py-0 border-border text-muted-foreground whitespace-nowrap">
                                                     {item.uom}
                                                 </Badge>
                                             </TableCell>
@@ -241,7 +241,7 @@ export function SalesOrderEncoding({
                                                     onChange={(e) => updateLineItemQty(item.id, Number(e.target.value) || 0)}
                                                 />
                                             </TableCell>
-                                            <TableCell className="text-right text-[11px] font-medium text-slate-500 tabular-nums">{formatCurrency(item.unitPrice)}</TableCell>
+                                            <TableCell className="text-right text-[11px] font-medium text-muted-foreground tabular-nums">{formatCurrency(item.unitPrice)}</TableCell>
                                             <TableCell className="text-center">
                                                 <div className="flex flex-wrap justify-center gap-1">
                                                     {item.discountType && (
@@ -306,3 +306,4 @@ export function SalesOrderEncoding({
         </div >
     );
 }
+

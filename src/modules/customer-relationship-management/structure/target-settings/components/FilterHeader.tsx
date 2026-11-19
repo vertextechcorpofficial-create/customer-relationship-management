@@ -49,14 +49,14 @@ export function FilterHeader({
         <div className="space-y-8">
             <header className="flex justify-between items-start">
                 <div className="space-y-1.5">
-                    <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Target Settings</h1>
+                    <h1 className="text-3xl font-extrabold tracking-tight text-foreground">Target Settings</h1>
                     <p className="text-sm text-muted-foreground font-medium">Manage and track salesman targets and performance</p>
                 </div>
 
                 <div className="flex items-end gap-3">
                     <div className="flex flex-col gap-1.5">
                         <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-0.5">Month</Label>
-                        <div className="flex items-center bg-white rounded-lg border shadow-sm px-4 h-10">
+                        <div className="flex items-center bg-card rounded-lg border shadow-sm px-4 h-10">
                             <Select value={month} onValueChange={(val) => onFilterChange(val, year)}>
                                 <SelectTrigger className="w-[120px] border-none focus:ring-0 shadow-none text-sm font-medium">
                                     <SelectValue />
@@ -72,7 +72,7 @@ export function FilterHeader({
 
                     <div className="flex flex-col gap-1.5">
                         <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider px-0.5">Year</Label>
-                        <div className="flex items-center bg-white rounded-lg border shadow-sm px-1 h-10">
+                        <div className="flex items-center bg-card rounded-lg border shadow-sm px-1 h-10">
                             <Select value={year} onValueChange={(val) => onFilterChange(month, val)}>
                                 <SelectTrigger className="w-[80px] border-none focus:ring-0 shadow-none text-sm font-medium">
                                     <SelectValue />
@@ -95,7 +95,7 @@ export function FilterHeader({
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                         <Input
                             placeholder="Enter salesman name..."
-                            className="pl-9 h-10 bg-white border-muted/60"
+                            className="pl-9 h-10 bg-card border-muted/60"
                             value={searchTerm}
                             onChange={(e) => onSearchChange(e.target.value)}
                         />

@@ -127,28 +127,28 @@ export function SalesOrderCheckout({
             <div className="flex flex-col gap-6 w-full">
                 {/* Main Tabular Section */}
                 <div className="flex flex-col gap-6">
-                    <Card className="shadow-2xl border-none bg-white/80 backdrop-blur-md overflow-hidden">
-                        <CardHeader className="p-8 border-b bg-gradient-to-r from-slate-50 to-white">
+                    <Card className="shadow-2xl border-none bg-card/80 backdrop-blur-md overflow-hidden">
+                        <CardHeader className="p-8 border-b bg-gradient-to-r from-muted to-card">
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
                                 <div className="space-y-1">
                                     <div className="flex items-center gap-2 text-primary/60 text-[10px] font-black uppercase tracking-[0.2em]">
                                         <Package className="w-3 h-3" />
                                         Document Identifier
                                     </div>
-                                    <h1 className="text-4xl font-black tracking-tighter text-slate-900">{orderNo}</h1>
+                                    <h1 className="text-4xl font-black tracking-tighter text-foreground">{orderNo}</h1>
                                 </div>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                                     <div className="flex flex-col">
                                         <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-1">Customer</span>
-                                        <span className="text-xs font-bold text-slate-700">{header.customer?.customer_name || "N/A"}</span>
+                                        <span className="text-xs font-bold text-foreground">{header.customer?.customer_name || "N/A"}</span>
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-1">Supplier</span>
-                                        <span className="text-xs font-bold text-slate-700">{header.supplier?.supplier_name || "N/A"}</span>
+                                        <span className="text-xs font-bold text-foreground">{header.supplier?.supplier_name || "N/A"}</span>
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-1">Branch</span>
-                                        <span className="text-xs font-bold text-slate-700">{header.branch?.branch_name || "N/A"}</span>
+                                        <span className="text-xs font-bold text-foreground">{header.branch?.branch_name || "N/A"}</span>
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-1">Sales Type</span>
@@ -171,11 +171,11 @@ export function SalesOrderCheckout({
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-1">Due Date</span>
-                                        <span className="text-xs font-bold text-slate-700">{header.dueDate || "N/A"}</span>
+                                        <span className="text-xs font-bold text-foreground">{header.dueDate || "N/A"}</span>
                                     </div>
                                     <div className="flex flex-col">
                                         <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-1">PO#</span>
-                                        <span className="text-xs font-bold text-slate-700">{header.poNo || "N/A"}</span>
+                                        <span className="text-xs font-bold text-foreground">{header.poNo || "N/A"}</span>
                                     </div>
                                     {header.paymentTerms !== undefined && header.paymentTerms !== null && (
                                         <div className="flex flex-col">
@@ -187,10 +187,10 @@ export function SalesOrderCheckout({
                                     )}
                                     <div className="flex flex-col">
                                         <span className="text-[10px] font-black text-muted-foreground uppercase tracking-wider mb-1 flex items-center gap-1">
-                                            <CreditCard className="w-3 h-3 text-slate-400" />
+                                            <CreditCard className="w-3 h-3 text-muted-foreground" />
                                             Credit Limit
                                         </span>
-                                        <span className="text-xs font-bold text-slate-800">
+                                        <span className="text-xs font-bold text-foreground">
                                             {hasValidCreditLimit ? formatCurrency(creditLimit) : "No Limit"}
                                         </span>
                                     </div>
@@ -207,7 +207,7 @@ export function SalesOrderCheckout({
                                                     </Badge>
                                                 )
                                             ) : (
-                                                <Badge variant="outline" className="text-[8px] px-1 py-0 uppercase font-bold tracking-tighter border-amber-300 text-amber-600 bg-amber-50">
+                                                <Badge variant="outline" className="text-[8px] px-1 py-0 uppercase font-bold tracking-tighter border-amber-500/40 text-amber-600 bg-amber-500/10">
                                                     For Review
                                                 </Badge>
                                             )}
@@ -219,16 +219,16 @@ export function SalesOrderCheckout({
                         <CardContent className="p-0">
                             <div className="flex-1 overflow-y-auto max-h-[500px] relative">
                                 <Table>
-                                    <TableHeader className="bg-slate-50 sticky top-0 z-10 shadow-sm">
+                                    <TableHeader className="bg-muted sticky top-0 z-10 shadow-sm">
                                         <TableRow className="hover:bg-transparent">
-                                            <TableHead className="py-5 px-8 text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50">Product Specification</TableHead>
-                                            <TableHead className="text-center text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50">Unit Count</TableHead>
-                                            <TableHead className="text-center text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50">Ordered</TableHead>
-                                            <TableHead className="text-center text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50">Available</TableHead>
-                                            <TableHead className="text-center text-[10px] font-black uppercase tracking-widest text-slate-900 bg-slate-100/50">Allocated</TableHead>
-                                            <TableHead className="text-right text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50">Unit Price</TableHead>
-                                            <TableHead className="text-center text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50"> Discounts Type</TableHead>
-                                            <TableHead className="text-right text-[10px] font-black uppercase tracking-widest text-slate-500 bg-slate-50 text-right">Net Amount</TableHead>
+                                            <TableHead className="py-5 px-8 text-[10px] font-black uppercase tracking-widest text-muted-foreground bg-muted">Product Specification</TableHead>
+                                            <TableHead className="text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground bg-muted">Unit Count</TableHead>
+                                            <TableHead className="text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground bg-muted">Ordered</TableHead>
+                                            <TableHead className="text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground bg-muted">Available</TableHead>
+                                            <TableHead className="text-center text-[10px] font-black uppercase tracking-widest text-foreground bg-muted/50">Allocated</TableHead>
+                                            <TableHead className="text-right text-[10px] font-black uppercase tracking-widest text-muted-foreground bg-muted">Unit Price</TableHead>
+                                            <TableHead className="text-center text-[10px] font-black uppercase tracking-widest text-muted-foreground bg-muted"> Discounts Type</TableHead>
+                                            <TableHead className="text-right text-[10px] font-black uppercase tracking-widest text-muted-foreground bg-muted text-right">Net Amount</TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
@@ -240,52 +240,52 @@ export function SalesOrderCheckout({
                                                 : calculateChainNetPrice(item.unitPrice, item.discounts) * allocatedQty;
 
                                             return (
-                                                <TableRow key={item.id} className="hover:bg-slate-50/50 border-b group transition-colors">
+                                                <TableRow key={item.id} className="hover:bg-muted/50 border-b group transition-colors">
                                                     <TableCell className="py-6 px-8">
                                                         <div className="flex flex-col gap-0.5">
-                                                            <span className="font-bold text-sm text-slate-900 group-hover:text-primary transition-colors italic">
+                                                            <span className="font-bold text-sm text-foreground group-hover:text-primary transition-colors italic">
                                                                 {item.product.display_name}
                                                             </span>
                                                             <div className="flex flex-wrap gap-1 mb-1">
                                                                 {item.product.brand_name && (
-                                                                    <Badge variant="outline" className="text-[7px] font-black uppercase px-1 py-0 border-blue-100 bg-blue-50/50 text-blue-500">
+                                                                    <Badge variant="outline" className="text-[7px] font-black uppercase px-1 py-0 border-blue-500/20 bg-blue-500/10 text-blue-500">
                                                                         {item.product.brand_name}
                                                                     </Badge>
                                                                 )}
                                                                 {item.product.category_name && (
-                                                                    <Badge variant="outline" className="text-[7px] font-black uppercase px-1 py-0 border-slate-100 bg-slate-50/50 text-slate-400">
+                                                                    <Badge variant="outline" className="text-[7px] font-black uppercase px-1 py-0 border-border bg-muted/50 text-muted-foreground">
                                                                         {item.product.category_name}
                                                                     </Badge>
                                                                 )}
                                                             </div>
                                                             <div className="flex items-center gap-2">
-                                                                <Badge variant="outline" className="text-[9px] font-black px-1.5 py-0 border-slate-200 text-slate-400">
+                                                                <Badge variant="outline" className="text-[9px] font-black px-1.5 py-0 border-border text-muted-foreground">
                                                                     {item.uom}
                                                                 </Badge>
                                                             </div>
                                                         </div>
                                                     </TableCell>
 
-                                                    <TableCell className="text-center font-black text-slate-600 tabular-nums">
+                                                    <TableCell className="text-center font-black text-muted-foreground tabular-nums">
                                                         <div className="flex flex-col items-center">
                                                             <span className="text-lg leading-none">{Number(item.product.unit_count) || Number(item.product.unit_of_measurement_count) || 1}</span>
                                                             <span className="text-[9px] text-muted-foreground uppercase font-black mt-1 tracking-widest">PCS</span>
                                                         </div>
                                                     </TableCell>
 
-                                                    <TableCell className="text-center font-black text-slate-900 tabular-nums">
+                                                    <TableCell className="text-center font-black text-foreground tabular-nums">
                                                         <div className="flex flex-col items-center">
                                                             <span className="text-lg leading-none">{item.quantity}</span>
                                                             <span className="text-[9px] text-muted-foreground uppercase font-black mt-1 tracking-widest">{item.uom}</span>
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell className="text-center font-bold text-slate-600 tabular-nums">
+                                                    <TableCell className="text-center font-bold text-muted-foreground tabular-nums">
                                                         <div className="flex flex-col items-center">
                                                             <span className="text-lg leading-none">{Number(item.product.available_qty) || 0}</span>
                                                             <span className="text-[9px] text-muted-foreground uppercase font-black mt-1 tracking-widest">{item.uom}</span>
                                                         </div>
                                                     </TableCell>
-                                                    <TableCell className="text-center bg-slate-50/30 relative py-8">
+                                                    <TableCell className="text-center bg-muted/30 relative py-8">
                                                         {(() => {
                                                             const isExceedingOrder = allocatedQty > item.quantity;
                                                             const isExceedingStock = allocatedQty > 0 && allocatedQty > (Number(item.product.available_qty) || 0);
@@ -296,8 +296,8 @@ export function SalesOrderCheckout({
                                                                     <Input
                                                                         type="number"
                                                                         className={`h-11 w-24 mx-auto text-center font-black text-base border-2 transition-all rounded-xl shadow-inner ${hasError
-                                                                            ? "border-red-500 ring-red-100 ring-4 bg-red-50"
-                                                                            : "border-slate-200 focus:border-primary focus:ring-primary/10 bg-white"
+                                                                            ? "border-red-500 ring-red-500/25 ring-4 bg-red-500/10"
+                                                                            : "border-border focus:border-primary focus:ring-primary/10 bg-card"
                                                                             }`}
                                                                         value={allocatedQty}
                                                                         onChange={(e) => updateAllocatedQty(item.id, Number(e.target.value) || 0)}
@@ -306,7 +306,7 @@ export function SalesOrderCheckout({
                                                                         <span className="text-[9px] font-black text-primary/60 uppercase tracking-widest leading-none">{item.uom}</span>
                                                                     </div>
                                                                     {hasError && (
-                                                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-1.5 flex items-center gap-1 bg-red-500 text-[9px] text-white px-3 py-1 rounded-full font-black uppercase tracking-widest shadow-lg animate-in fade-in slide-in-from-top-1 duration-300 z-50 whitespace-nowrap">
+                                                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-1.5 flex items-center gap-1 bg-red-500/100 text-[9px] text-white px-3 py-1 rounded-full font-black uppercase tracking-widest shadow-lg animate-in fade-in slide-in-from-top-1 duration-300 z-50 whitespace-nowrap">
                                                                             <AlertCircle className="w-3 h-3" />
                                                                             {isExceedingStock ? "Exceeds Stock" : "Exceeds Order Qty"}
                                                                         </div>
@@ -315,19 +315,19 @@ export function SalesOrderCheckout({
                                                             );
                                                         })()}
                                                     </TableCell>
-                                                    <TableCell className="text-right font-medium text-slate-400 tabular-nums text-xs">{formatCurrency(item.unitPrice)}</TableCell>
+                                                    <TableCell className="text-right font-medium text-muted-foreground tabular-nums text-xs">{formatCurrency(item.unitPrice)}</TableCell>
                                                     <TableCell className="text-center">
                                                         <div className="flex flex-wrap justify-center gap-1">
                                                             {item.discountType && (
-                                                                <Badge className="text-[8px] px-1.5 py-0.5 bg-slate-100 text-slate-600 border-slate-200 font-black uppercase tracking-tighter">
+                                                                <Badge className="text-[8px] px-1.5 py-0.5 bg-muted text-muted-foreground border-border font-black uppercase tracking-tighter">
                                                                     {item.discountType}
                                                                 </Badge>
                                                             )}
-                                                            {!item.discountType && <span className="text-[10px] text-slate-300 italic">None</span>}
+                                                            {!item.discountType && <span className="text-[10px] text-muted-foreground/50 italic">None</span>}
                                                         </div>
                                                     </TableCell>
                                                     <TableCell className="text-right py-6 px-8">
-                                                        <span className="font-black text-sm text-slate-900 tabular-nums">
+                                                        <span className="font-black text-sm text-foreground tabular-nums">
                                                             {formatCurrency(allocatedTotal)}
                                                         </span>
                                                     </TableCell>
@@ -375,8 +375,8 @@ export function SalesOrderCheckout({
                                 {/* Order Financials Row */}
                                 <div className="flex flex-col md:flex-row md:items-center gap-8 pt-2">
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1 opacity-60">Ordered Gross</span>
-                                        <span className="text-xl font-black tabular-nums text-slate-400 tracking-tight">{formatCurrency(summary.orderedGross)}</span>
+                                        <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest mb-1 opacity-60">Ordered Gross</span>
+                                        <span className="text-xl font-black tabular-nums text-muted-foreground tracking-tight">{formatCurrency(summary.orderedGross)}</span>
                                     </div>
                                     <div className="flex flex-col">
                                         <div className="flex flex-col">
@@ -385,14 +385,14 @@ export function SalesOrderCheckout({
                                         <span className="text-xl font-black tabular-nums text-amber-500 tracking-tight">-{formatCurrency(summary.orderedDiscount)}</span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] text-slate-300 font-black uppercase tracking-widest mb-1 opacity-90">Net Amount</span>
-                                        <span className="text-xl font-black tabular-nums text-slate-300 tracking-tight">{formatCurrency(summary.orderedNet)}</span>
+                                        <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest mb-1 opacity-90">Net Amount</span>
+                                        <span className="text-xl font-black tabular-nums text-foreground tracking-tight">{formatCurrency(summary.orderedNet)}</span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1 opacity-60">VAT</span>
+                                        <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest mb-1 opacity-60">VAT</span>
                                         <span className="text-lg font-black tabular-nums opacity-60 tracking-tight">{formatCurrency(summary.vatAmount)}</span>
                                     </div>
-                                    <div className="flex flex-col ml-auto bg-emerald-500/10 p-5 rounded-2xl border border-emerald-500/20 backdrop-blur-xl">
+                                    <div className="flex flex-col ml-auto bg-emerald-500/100/10 p-5 rounded-2xl border border-emerald-500/20 backdrop-blur-xl">
                                         <span className="text-[10px] text-emerald-400 font-black uppercase tracking-[0.2em] mb-1">Allocated Amount</span>
                                         <span className="text-4xl font-black text-emerald-400 tabular-nums tracking-tighter tabular-nums underline underline-offset-[12px] decoration-emerald-500/30">
                                             {formatCurrency(summary.allocatedAmount)}
@@ -405,7 +405,7 @@ export function SalesOrderCheckout({
                         <CardContent className="p-8 pt-6 grid grid-cols-1 md:grid-cols-2 gap-8 items-end">
                             {/* Order Remarks: Moved below actual fulfillment */}
                             <div className="flex flex-col gap-3">
-                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-500">
+                                <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                                     <MessageSquare className="w-3 h-3" />
                                     Order Remarks
                                 </div>
@@ -428,13 +428,13 @@ export function SalesOrderCheckout({
                                     return (
                                         <>
                                             {anyHasError && (
-                                                <div className="flex items-center justify-center gap-2 text-rose-500 bg-rose-50/50 py-2 rounded-lg border border-rose-100 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                                                <div className="flex items-center justify-center gap-2 text-rose-500 bg-rose-500/10 py-2 rounded-lg border border-rose-500/20 animate-in fade-in slide-in-from-bottom-2 duration-500">
                                                     <AlertCircle className="w-4 h-4" />
                                                     <span className="text-[10px] font-black uppercase tracking-widest">Adjust over-allocated items</span>
                                                 </div>
                                             )}
                                             <Button
-                                                className={`w-full h-16 text-base font-black uppercase tracking-[0.2em] shadow-2xl transition-all duration-500 rounded-xl ${anyHasError ? 'bg-slate-700 opacity-50 cursor-not-allowed text-slate-400' : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 hover:scale-[1.02] hover:shadow-emerald-500/20 active:scale-95 shadow-emerald-500/10'}`}
+                                                className={`w-full h-16 text-base font-black uppercase tracking-[0.2em] shadow-2xl transition-all duration-500 rounded-xl ${anyHasError ? 'bg-slate-700 opacity-50 cursor-not-allowed text-slate-400' : 'bg-emerald-500/100 hover:bg-emerald-400 text-slate-950 hover:scale-[1.02] hover:shadow-emerald-500/20 active:scale-95 shadow-emerald-500/10'}`}
                                                 onClick={handleConfirmClick}
                                                 disabled={submitting || anyHasError}
                                             >
@@ -446,14 +446,14 @@ export function SalesOrderCheckout({
                                                 ) : (
                                                     <span className="flex items-center gap-3">
                                                         SUBMIT SALES ORDER
-                                                        <CheckCircle2 className="w-6 h-6 text-slate-950/50" />
+                                                        <CheckCircle2 className="w-6 h-6 text-foreground/50" />
                                                     </span>
                                                 )}
                                             </Button>
                                         </>
                                     );
                                 })()}
-                                <p className="text-[10px] text-center text-slate-500 font-medium leading-relaxed italic">
+                                <p className="text-[10px] text-center text-muted-foreground font-medium leading-relaxed italic">
                                     Finalize your allocation and select target workflow status.
                                 </p>
                             </div>
@@ -475,3 +475,4 @@ export function SalesOrderCheckout({
         </div>
     );
 }
+

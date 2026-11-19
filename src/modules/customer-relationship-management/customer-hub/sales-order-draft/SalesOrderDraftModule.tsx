@@ -72,12 +72,12 @@ export default function SalesOrderDraftModule() {
             {/* Header section with icon mask */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-600 shadow-inner">
+                    <div className="h-12 w-12 rounded-xl bg-orange-500/100/10 flex items-center justify-center text-orange-600 shadow-inner">
                         <PackagePlus className="h-7 w-7" />
                     </div>
                     <div>
                         <div className="flex items-center gap-3">
-                            <h1 className="text-2xl font-black tracking-tighter text-slate-900 uppercase">Sales Order Draft</h1>
+                            <h1 className="text-2xl font-black tracking-tighter text-foreground uppercase">Sales Order Draft</h1>
                         </div>
                         <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-none mt-1 opacity-70">
                             Allocate stock for transaction drafts before formal approval
@@ -90,7 +90,7 @@ export default function SalesOrderDraftModule() {
                         size="sm"
                         onClick={refreshOrders}
                         disabled={loadingOrders}
-                        className="h-9 hover:bg-slate-100 font-bold text-xs uppercase tracking-widest gap-2"
+                        className="h-9 hover:bg-accent font-bold text-xs uppercase tracking-widest gap-2"
                     >
                         <RefreshCw className={`h-3.5 w-3.5 ${loadingOrders ? "animate-spin" : ""}`} />
                         Sync
@@ -179,23 +179,23 @@ export default function SalesOrderDraftModule() {
                                         <TableCell className="pl-6 py-4">
                                             <span className="font-black text-foreground text-sm group-hover:text-primary transition-colors">{order.order_no}</span>
                                         </TableCell>
-                                        <TableCell className="font-bold text-slate-400 text-xs tabular-nums">{order.po_no || "—"}</TableCell>
+                                        <TableCell className="font-bold text-muted-foreground text-xs tabular-nums">{order.po_no || "—"}</TableCell>
                                         <TableCell>
                                             <div className="flex flex-col gap-0.5">
-                                                <span className="font-bold text-slate-900 text-sm">{order.customer_name}</span>
+                                                <span className="font-bold text-foreground text-sm">{order.customer_name}</span>
                                                 <span className="text-[10px] text-muted-foreground font-bold tracking-tighter uppercase">{order.customer_code}</span>
                                             </div>
                                         </TableCell>
-                                        <TableCell className="text-xs font-medium text-slate-500">
+                                        <TableCell className="text-xs font-medium text-muted-foreground">
                                             {order.order_date ? format(new Date(order.order_date), "MMM d, yyyy") : "—"}
                                         </TableCell>
-                                        <TableCell className="text-right font-bold text-slate-400 tabular-nums">
+                                        <TableCell className="text-right font-bold text-muted-foreground tabular-nums">
                                             {formatCurrency(order.total_amount)}
                                         </TableCell>
                                         <TableCell className="text-right">
                                             <div className="flex flex-col items-end">
-                                                <span className="text-primary font-black text-base tabular-nums leading-none">{formatCurrency(order.allocated_amount || 0)}</span>
-                                                <Badge variant="outline" className="text-[8px] h-4 mt-1 bg-primary/5 text-primary border-primary/10 uppercase font-black">Partial Draft</Badge>
+                                                <span className="text-primary dark:text-blue-400 font-black text-base tabular-nums leading-none">{formatCurrency(order.allocated_amount || 0)}</span>
+                                                <Badge variant="outline" className="text-[8px] h-4 mt-1 bg-primary/5 text-primary border-primary/10 dark:bg-blue-400/10 dark:text-blue-400 dark:border-blue-400/20 uppercase font-black">Partial Draft</Badge>
                                             </div>
                                         </TableCell>
                                         <TableCell className="text-right pr-6">
@@ -237,3 +237,4 @@ export default function SalesOrderDraftModule() {
         </div>
     );
 }
+

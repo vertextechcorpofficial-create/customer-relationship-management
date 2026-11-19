@@ -574,12 +574,12 @@ export function TargetFormDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[1000px] w-[95vw] max-h-[90vh] p-0 flex flex-col bg-white border-none shadow-2xl rounded-3xl overflow-hidden">
-                <DialogHeader className="p-6 pb-4 bg-slate-50/50 border-b border-slate-100 shrink-0">
+            <DialogContent className="sm:max-w-[1000px] w-[95vw] max-h-[90vh] p-0 flex flex-col bg-card border-none shadow-2xl rounded-3xl overflow-hidden">
+                <DialogHeader className="p-6 pb-4 bg-muted/50 border-b border-border shrink-0">
                     <DialogTitle className="text-xl font-black flex justify-between items-center pr-10 text-primary">
                         {salesman.current_target?.id ? "Update" : "Set"} Target for {salesman.salesman_name}
                     </DialogTitle>
-                    <DialogDescription className="text-slate-500 font-medium text-xs mt-0.5">
+                    <DialogDescription className="text-muted-foreground font-medium text-xs mt-0.5">
                         Configure {operationLabel} targets for {new Date(year, month - 1).toLocaleString('default', { month: 'long', year: 'numeric' })}
                     </DialogDescription>
                 </DialogHeader>
@@ -598,9 +598,9 @@ export function TargetFormDialog({
                         <TabsContent value="general" className="space-y-6 outline-none">
                             {isBooking ? (
                                 /* --- BOOKING LAYOUT --- */
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8 bg-slate-50/30 rounded-3xl border border-slate-100 shadow-sm">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 p-8 bg-muted/30 rounded-3xl border border-border shadow-sm">
                                     <div className="space-y-3">
-                                        <Label className="text-sm font-black text-slate-700 flex items-center gap-2">
+                                        <Label className="text-sm font-black text-foreground flex items-center gap-2">
                                             <TrendingUp className="w-5 h-5 text-indigo-500" /> Volume (Total Sales)
                                         </Label>
                                         <div className="relative group">
@@ -608,23 +608,23 @@ export function TargetFormDialog({
                                                 type="number"
                                                 value={totalAllocatedSupplier || ""}
                                                 readOnly
-                                                className="bg-slate-100 border-none h-14 pl-12 font-black text-2xl rounded-2xl focus:ring-0 shadow-inner text-primary cursor-not-allowed"
+                                                className="bg-muted border-none h-14 pl-12 font-black text-2xl rounded-2xl focus:ring-0 shadow-inner text-primary cursor-not-allowed"
                                                 placeholder="0"
                                             />
-                                            <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-slate-400 text-lg">₱</span>
+                                            <span className="absolute left-5 top-1/2 -translate-y-1/2 font-bold text-muted-foreground text-lg">₱</span>
                                         </div>
                                         <p className="text-xs text-muted-foreground font-medium italic pl-1 italic">Set the overall booking target for this month</p>
                                     </div>
 
                                     <div className="space-y-3">
-                                        <Label className="text-sm font-black text-slate-700 flex items-center gap-2">
+                                        <Label className="text-sm font-black text-foreground flex items-center gap-2">
                                             <RefreshCw className="w-5 h-5 text-blue-500" /> Frequency Target
                                         </Label>
                                         <Input
                                             type="number"
                                             value={targetData.frequency || ""}
                                             onChange={(e) => handleInputChange('frequency', e.target.value)}
-                                            className="bg-white border-slate-200 h-14 font-bold text-2xl rounded-2xl focus:ring-slate-900 shadow-sm hover:border-slate-300 transition-all"
+                                            className="bg-card border-border h-14 font-bold text-2xl rounded-2xl focus:ring-ring shadow-sm hover:border-border transition-all"
                                             placeholder="Enter frequency"
                                         />
                                         <p className="text-xs text-muted-foreground font-medium italic pl-1 italic">Target number of visits per outlet</p>
@@ -632,10 +632,10 @@ export function TargetFormDialog({
                                 </div>
                             ) : (
                                 /* --- SITE SALES LAYOUT (Operations ID 3) --- */
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 p-6 bg-slate-50/30 rounded-3xl border border-slate-100 shadow-sm">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 p-6 bg-muted/30 rounded-3xl border border-border shadow-sm">
                                     {/* 1. Volume */}
                                     <div className="space-y-2.5">
-                                        <Label className="text-sm font-black text-slate-700 flex items-center gap-2">
+                                        <Label className="text-sm font-black text-foreground flex items-center gap-2">
                                             <TrendingUp className="w-4 h-4 text-indigo-500" /> Volume (Total Sales)
                                         </Label>
                                         <div className="relative group">
@@ -643,64 +643,64 @@ export function TargetFormDialog({
                                                 type="number"
                                                 value={totalAllocatedSupplier || ""}
                                                 readOnly
-                                                className="bg-slate-100 border-none h-11 pl-10 font-black text-lg rounded-xl focus:ring-0 shadow-inner text-primary cursor-not-allowed"
+                                                className="bg-muted border-none h-11 pl-10 font-black text-lg rounded-xl focus:ring-0 shadow-inner text-primary cursor-not-allowed"
                                                 placeholder="0"
                                             />
-                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-slate-400">₱</span>
+                                            <span className="absolute left-4 top-1/2 -translate-y-1/2 font-bold text-muted-foreground">₱</span>
                                         </div>
                                     </div>
 
                                     {/* 2. New Accounts */}
                                     <div className="space-y-2.5">
-                                        <Label className="text-sm font-black text-slate-700 flex items-center gap-2">
+                                        <Label className="text-sm font-black text-foreground flex items-center gap-2">
                                             <UserPlus className="w-4 h-4 text-indigo-500" /> New Account
                                         </Label>
                                         <Input
                                             type="number"
                                             value={targetData.new_accounts || ""}
                                             onChange={(e) => handleInputChange('new_accounts', e.target.value)}
-                                            className="bg-white border-slate-200 h-11 font-bold text-lg rounded-xl focus:ring-slate-900 shadow-sm hover:border-slate-300 transition-all"
+                                            className="bg-card border-border h-11 font-bold text-lg rounded-xl focus:ring-ring shadow-sm hover:border-border transition-all"
                                             placeholder="Enter new account target"
                                         />
                                     </div>
 
                                     {/* 3. Productive Outlets */}
                                     <div className="space-y-2.5">
-                                        <Label className="text-sm font-black text-slate-700 flex items-center gap-2">
+                                        <Label className="text-sm font-black text-foreground flex items-center gap-2">
                                             <Store className="w-4 h-4 text-amber-500" /> Productive Outlets
                                         </Label>
                                         <Input
                                             type="number"
                                             value={targetData.productive_outlets || ""}
                                             onChange={(e) => handleInputChange('productive_outlets', e.target.value)}
-                                            className="bg-white border-slate-200 h-11 font-bold text-lg rounded-xl focus:ring-slate-900 shadow-sm hover:border-slate-300 transition-all"
+                                            className="bg-card border-border h-11 font-bold text-lg rounded-xl focus:ring-ring shadow-sm hover:border-border transition-all"
                                             placeholder="Enter productive outlets"
                                         />
                                     </div>
 
                                     {/* 4. Line Sales */}
                                     <div className="space-y-2.5">
-                                        <Label className="text-sm font-black text-slate-700 flex items-center gap-2">
+                                        <Label className="text-sm font-black text-foreground flex items-center gap-2">
                                             <BarChart3 className="w-4 h-4 text-emerald-500" /> Line Sales
                                         </Label>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div className="space-y-1">
-                                                <Label className="text-[10px] uppercase text-slate-400 font-black">No. Sku</Label>
+                                                <Label className="text-[10px] uppercase text-muted-foreground font-black">No. Sku</Label>
                                                 <Input
                                                     type="number"
                                                     value={targetData.line_sales || ""}
                                                     onChange={(e) => handleInputChange('line_sales', e.target.value)}
-                                                    className="bg-white border-slate-200 h-10 font-bold text-base rounded-xl focus:ring-slate-900 shadow-sm transition-all"
+                                                    className="bg-card border-border h-10 font-bold text-base rounded-xl focus:ring-ring shadow-sm transition-all"
                                                     placeholder="0"
                                                 />
                                             </div>
                                             <div className="space-y-1">
-                                                <Label className="text-[10px] uppercase text-slate-400 font-black">No. Customer</Label>
+                                                <Label className="text-[10px] uppercase text-muted-foreground font-black">No. Customer</Label>
                                                 <Input
                                                     type="number"
                                                     value={targetData.line_sales_target || ""}
                                                     onChange={(e) => handleInputChange('line_sales_target', e.target.value)}
-                                                    className="bg-white border-slate-200 h-10 font-bold text-base rounded-xl focus:ring-slate-900 shadow-sm transition-all"
+                                                    className="bg-card border-border h-10 font-bold text-base rounded-xl focus:ring-ring shadow-sm transition-all"
                                                     placeholder="0"
                                                 />
                                             </div>
@@ -709,41 +709,41 @@ export function TargetFormDialog({
 
                                     {/* 5. Frequency */}
                                     <div className="space-y-2.5">
-                                        <Label className="text-sm font-black text-slate-700 flex items-center gap-2">
+                                        <Label className="text-sm font-black text-foreground flex items-center gap-2">
                                             <RefreshCw className="w-4 h-4 text-blue-500" /> Frequency
                                         </Label>
                                         <Input
                                             type="number"
                                             value={targetData.frequency || ""}
                                             onChange={(e) => handleInputChange('frequency', e.target.value)}
-                                            className="bg-white border-slate-200 h-11 font-bold text-lg rounded-xl focus:ring-slate-900 shadow-sm hover:border-slate-300 transition-all"
+                                            className="bg-card border-border h-11 font-bold text-lg rounded-xl focus:ring-ring shadow-sm hover:border-border transition-all"
                                             placeholder="Enter frequency target"
                                         />
                                     </div>
 
                                     {/* 6. Basket Count */}
                                     <div className="space-y-2.5">
-                                        <Label className="text-sm font-black text-slate-700 flex items-center gap-2">
+                                        <Label className="text-sm font-black text-foreground flex items-center gap-2">
                                             <ShoppingBag className="w-4 h-4 text-rose-500" /> Basket Count
                                         </Label>
                                         <div className="grid grid-cols-2 gap-3">
                                             <div className="space-y-1">
-                                                <Label className="text-[10px] uppercase text-slate-400 font-black">Min</Label>
+                                                <Label className="text-[10px] uppercase text-muted-foreground font-black">Min</Label>
                                                 <Input
                                                     type="number"
                                                     value={targetData.basket_count || ""}
                                                     onChange={(e) => handleInputChange('basket_count', e.target.value)}
-                                                    className="bg-white border-slate-200 h-10 font-bold text-base rounded-xl focus:ring-slate-900 shadow-sm transition-all"
+                                                    className="bg-card border-border h-10 font-bold text-base rounded-xl focus:ring-ring shadow-sm transition-all"
                                                     placeholder="0"
                                                 />
                                             </div>
                                             <div className="space-y-1">
-                                                <Label className="text-[10px] uppercase text-slate-400 font-black">No. Customer</Label>
+                                                <Label className="text-[10px] uppercase text-muted-foreground font-black">No. Customer</Label>
                                                 <Input
                                                     type="number"
                                                     value={targetData.basket_count_target || ""}
                                                     onChange={(e) => handleInputChange('basket_count_target', e.target.value)}
-                                                    className="bg-white border-slate-200 h-10 font-bold text-base rounded-xl focus:ring-slate-900 shadow-sm transition-all"
+                                                    className="bg-card border-border h-10 font-bold text-base rounded-xl focus:ring-ring shadow-sm transition-all"
                                                     placeholder="0"
                                                 />
                                             </div>
@@ -752,14 +752,14 @@ export function TargetFormDialog({
 
                                     {/* 7. Reach */}
                                     <div className="space-y-2.5 col-span-1">
-                                        <Label className="text-sm font-black text-slate-700 flex items-center gap-2">
+                                        <Label className="text-sm font-black text-foreground flex items-center gap-2">
                                             <MapPin className="w-4 h-4 text-indigo-500" /> Reach
                                         </Label>
                                         <Input
                                             type="number"
                                             value={targetData.reach || ""}
                                             onChange={(e) => handleInputChange('reach', e.target.value)}
-                                            className="bg-white border-slate-200 h-11 font-bold text-lg rounded-xl focus:ring-slate-900 shadow-sm hover:border-slate-300 transition-all"
+                                            className="bg-card border-border h-11 font-bold text-lg rounded-xl focus:ring-ring shadow-sm hover:border-border transition-all"
                                             placeholder="Enter reach target"
                                         />
                                     </div>
@@ -770,32 +770,32 @@ export function TargetFormDialog({
                             <div className="border-t pt-4 space-y-4">
                                 <div className="flex justify-between items-end">
                                     <div>
-                                        <h3 className="text-lg font-black text-slate-900 uppercase tracking-tight flex items-center gap-2">
+                                        <h3 className="text-lg font-black text-foreground uppercase tracking-tight flex items-center gap-2">
                                             <Box className="w-5 h-5 text-indigo-500" /> Volume Breakdown
                                         </h3>
-                                        <p className="text-xs text-slate-500 font-medium italic">Distribute the total volume across customers and suppliers</p>
+                                        <p className="text-xs text-muted-foreground font-medium italic">Distribute the total volume across customers and suppliers</p>
                                     </div>
 
                                     <div className="flex gap-4">
                                         {isBooking && (
                                             <div className="text-right">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase">Allocated (Customers)</p>
-                                                <p className={`text-sm font-bold ${totalAllocatedCustomer > totalAllocatedSupplier ? 'text-destructive' : 'text-slate-900'}`}>
+                                                <p className="text-[10px] font-black text-muted-foreground uppercase">Allocated (Customers)</p>
+                                                <p className={`text-sm font-bold ${totalAllocatedCustomer > totalAllocatedSupplier ? 'text-destructive' : 'text-foreground'}`}>
                                                     ₱{(totalAllocatedCustomer || 0).toLocaleString()} / ₱{(totalAllocatedSupplier || 0).toLocaleString()}
                                                 </p>
                                             </div>
                                         )}
                                         {(isSiteSales || isBooking) && (
                                             <div className="text-right">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase">Allocated (Areas)</p>
-                                                <p className={`text-sm font-bold ${totalAllocatedArea > totalAllocatedSupplier ? 'text-destructive' : 'text-slate-900'}`}>
+                                                <p className="text-[10px] font-black text-muted-foreground uppercase">Allocated (Areas)</p>
+                                                <p className={`text-sm font-bold ${totalAllocatedArea > totalAllocatedSupplier ? 'text-destructive' : 'text-foreground'}`}>
                                                     ₱{(totalAllocatedArea || 0).toLocaleString()} / ₱{(totalAllocatedSupplier || 0).toLocaleString()}
                                                 </p>
                                             </div>
                                         )}
                                         <div className="text-right">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase">Allocated (Suppliers)</p>
-                                            <p className={`text-sm font-bold ${totalAllocatedSupplier > totalAllocatedSupplier ? 'text-destructive' : 'text-slate-900'}`}>
+                                            <p className="text-[10px] font-black text-muted-foreground uppercase">Allocated (Suppliers)</p>
+                                            <p className={`text-sm font-bold ${totalAllocatedSupplier > totalAllocatedSupplier ? 'text-destructive' : 'text-foreground'}`}>
                                                 ₱{(totalAllocatedSupplier || 0).toLocaleString()} / ₱{(totalAllocatedSupplier || 0).toLocaleString()}
                                             </p>
                                         </div>
@@ -804,17 +804,17 @@ export function TargetFormDialog({
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-[400px]">
                                     {/* Left: Customer/Area Side */}
-                                    <div className="flex flex-col border border-slate-200 rounded-2xl bg-slate-50/50 overflow-hidden shadow-sm min-h-0 max-h-full">
-                                        <div className="p-4 bg-white border-b border-slate-100 space-y-4 flex-none">
+                                    <div className="flex flex-col border border-border rounded-2xl bg-muted/50 overflow-hidden shadow-sm min-h-0 max-h-full">
+                                        <div className="p-4 bg-card border-b border-border space-y-4 flex-none">
                                             <div className="flex items-center justify-between w-full">
                                                 <div className="flex items-center gap-2 text-primary font-black text-xs uppercase tracking-widest">
                                                     {isBooking ? (
-                                                        <div className="flex bg-slate-100 p-0.5 rounded-lg">
+                                                        <div className="flex bg-muted p-0.5 rounded-lg">
                                                             <button 
                                                                 onClick={() => setActiveAllocationTab("customer")}
                                                                 className={cn(
                                                                     "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] transition-all",
-                                                                    activeAllocationTab === "customer" ? "bg-white shadow-sm text-primary" : "text-slate-400 hover:text-slate-600"
+                                                                    activeAllocationTab === "customer" ? "bg-card shadow-sm text-primary" : "text-muted-foreground hover:text-muted-foreground"
                                                                 )}
                                                             >
                                                                 <Users className="w-3.5 h-3.5" /> Customer
@@ -823,7 +823,7 @@ export function TargetFormDialog({
                                                                 onClick={() => setActiveAllocationTab("area")}
                                                                 className={cn(
                                                                     "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-[10px] transition-all",
-                                                                    activeAllocationTab === "area" ? "bg-white shadow-sm text-primary" : "text-slate-400 hover:text-slate-600"
+                                                                    activeAllocationTab === "area" ? "bg-card shadow-sm text-primary" : "text-muted-foreground hover:text-muted-foreground"
                                                                 )}
                                                             >
                                                                 <MapPin className="w-3.5 h-3.5" /> Area
@@ -844,10 +844,10 @@ export function TargetFormDialog({
 
                                             {(isBooking && activeAllocationTab === "customer") && (
                                                 <div className="relative">
-                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                                                     <Input
                                                         placeholder="Search province, city, or customer..."
-                                                        className="h-9 pl-9 text-sm border-slate-100 bg-slate-50"
+                                                        className="h-9 pl-9 text-sm border-border bg-muted"
                                                         value={customerSearch}
                                                         onChange={(e) => setCustomerSearch(e.target.value)}
                                                     />
@@ -862,7 +862,7 @@ export function TargetFormDialog({
                                                             value={selectedProvinceCode}
                                                             onValueChange={setSelectedProvinceCode}
                                                             placeholder={isLoadingProvinces ? "Loading..." : "Province"}
-                                                            className="h-9 text-[10px] font-bold bg-slate-50 border-slate-100"
+                                                            className="h-9 text-[10px] font-bold bg-muted border-border"
                                                         />
                                                         <AreaSearchSelect 
                                                             options={cities.map(c => ({ value: c.name, label: c.name }))}
@@ -870,7 +870,7 @@ export function TargetFormDialog({
                                                             onValueChange={setSelectedCityName}
                                                             placeholder={isLoadingCities ? "Loading..." : "City"}
                                                             disabled={!selectedProvinceCode || isLoadingCities}
-                                                            className="h-9 text-[10px] font-bold bg-slate-50 border-slate-100"
+                                                            className="h-9 text-[10px] font-bold bg-muted border-border"
                                                         />
                                                     </div>
                                                     <Button 
@@ -889,11 +889,11 @@ export function TargetFormDialog({
                                                 <Accordion type="multiple" className="w-full">
                                                     {Object.entries(groupedCustomers).length > 0 ? (
                                                         Object.entries(groupedCustomers).map(([province, data]) => (
-                                                            <AccordionItem key={province} value={province} className="border-b border-slate-100 px-4">
+                                                            <AccordionItem key={province} value={province} className="border-b border-border px-4">
                                                                 <AccordionTrigger className="hover:no-underline py-3 group">
                                                                     <div className="flex items-center justify-between w-full pr-4">
                                                                         <div className="flex items-center gap-2">
-                                                                            <span className="text-xs font-black text-slate-900 tracking-tight uppercase">{province}</span>
+                                                                            <span className="text-xs font-black text-foreground tracking-tight uppercase">{province}</span>
                                                                         </div>
                                                                         <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary font-bold text-[10px]">
                                                                             ₱{(data.totalAllocation || 0).toLocaleString()}
@@ -904,16 +904,16 @@ export function TargetFormDialog({
                                                                     <Accordion type="multiple" className="w-full space-y-1">
                                                                         {Object.entries(data.cities).map(([city, cityData]) => (
                                                                             <AccordionItem key={city} value={city} className="border-none">
-                                                                                <AccordionTrigger className="hover:no-underline py-2 px-2 rounded-lg hover:bg-slate-100/50 transition-colors group/city">
+                                                                                <AccordionTrigger className="hover:no-underline py-2 px-2 rounded-lg hover:bg-accent/50 transition-colors group/city">
                                                                                     <div className="flex items-center justify-between w-full pr-4">
                                                                                         <div className="flex items-center gap-2">
-                                                                                            <Map className="w-3.5 h-3.5 text-slate-400 group-hover/city:text-primary transition-colors" />
-                                                                                            <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">{city}</span>
-                                                                                            <Badge variant="secondary" className="ml-2 h-4 px-1 text-[9px] font-black bg-slate-100 text-slate-500 border-none">
+                                                                                            <Map className="w-3.5 h-3.5 text-muted-foreground group-hover/city:text-primary transition-colors" />
+                                                                                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{city}</span>
+                                                                                            <Badge variant="secondary" className="ml-2 h-4 px-1 text-[9px] font-black bg-muted text-muted-foreground border-none">
                                                                                                 {cityData.customers.length}
                                                                                             </Badge>
                                                                                         </div>
-                                                                                        <Badge variant="outline" className="bg-white border-slate-200 text-slate-500 font-bold text-[9px] h-5 shadow-sm">
+                                                                                        <Badge variant="outline" className="bg-card border-border text-muted-foreground font-bold text-[9px] h-5 shadow-sm">
                                                                                             ₱{(cityData.totalAllocation || 0).toLocaleString()}
                                                                                         </Badge>
                                                                                     </div>
@@ -922,20 +922,20 @@ export function TargetFormDialog({
                                                                                     {cityData.customers.map(customer => {
                                                                                         const targetValue = customerTargets.find(ct => ct.customer_id === customer.id)?.target_amount || 0;
                                                                                         return (
-                                                                                            <div key={customer.id} className="p-3 bg-white rounded-xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-primary/40 transition-colors">
+                                                                                            <div key={customer.id} className="p-3 bg-card rounded-xl border border-border shadow-sm flex items-center justify-between group hover:border-primary/40 transition-colors">
                                                                                                 <div className="flex-1 min-w-0 pr-4">
-                                                                                                    <p className="text-[10px] font-bold text-slate-900 truncate uppercase">{customer.customer_name}</p>
-                                                                                                    <p className="text-[9px] text-slate-400 font-medium truncate italic">{customer.brgy || 'N/A'}</p>
+                                                                                                    <p className="text-[10px] font-bold text-foreground truncate uppercase">{customer.customer_name}</p>
+                                                                                                    <p className="text-[9px] text-muted-foreground font-medium truncate italic">{customer.brgy || 'N/A'}</p>
                                                                                                 </div>
                                                                                                 <div className="relative w-28">
                                                                                                     <Input
                                                                                                         type="number"
                                                                                                         value={targetValue || ""}
                                                                                                         onChange={(e) => handleCustomerTargetChange(customer.id, Number(e.target.value))}
-                                                                                                        className="h-7 pl-5 text-[10px] font-bold bg-slate-50 border-none rounded-lg focus:ring-primary"
+                                                                                                        className="h-7 pl-5 text-[10px] font-bold bg-muted border-none rounded-lg focus:ring-primary"
                                                                                                         placeholder="0"
                                                                                                     />
-                                                                                                    <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[9px] font-bold text-slate-400">₱</span>
+                                                                                                    <span className="absolute left-1.5 top-1/2 -translate-y-1/2 text-[9px] font-bold text-muted-foreground">₱</span>
                                                                                                 </div>
                                                                                             </div>
                                                                                         );
@@ -948,7 +948,7 @@ export function TargetFormDialog({
                                                             </AccordionItem>
                                                         ))
                                                     ) : (
-                                                        <div className="flex flex-col items-center justify-center py-20 text-slate-400 bg-white/50 rounded-2xl border-2 border-dashed border-slate-100 m-2">
+                                                        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground bg-card/50 rounded-2xl border-2 border-dashed border-border m-2">
                                                             <Users className="w-8 h-8 mb-2 opacity-20" />
                                                             <p className="text-[10px] font-black uppercase tracking-widest">No customers found</p>
                                                         </div>
@@ -960,11 +960,11 @@ export function TargetFormDialog({
                                                 <Accordion type="multiple" className="w-full">
                                                     {Object.entries(groupedAreas).length > 0 ? (
                                                         Object.entries(groupedAreas).map(([province, data]) => (
-                                                            <AccordionItem key={province} value={province} className="border-b border-slate-100 px-4">
+                                                            <AccordionItem key={province} value={province} className="border-b border-border px-4">
                                                                 <AccordionTrigger className="hover:no-underline py-3 group">
                                                                     <div className="flex items-center justify-between w-full pr-4">
                                                                         <div className="flex items-center gap-2">
-                                                                            <span className="text-xs font-black text-slate-900 tracking-tight uppercase">{province}</span>
+                                                                            <span className="text-xs font-black text-foreground tracking-tight uppercase">{province}</span>
                                                                         </div>
                                                                         <Badge variant="outline" className="bg-primary/5 border-primary/20 text-primary font-bold text-[10px]">
                                                                             ₱{(data.totalAllocation || 0).toLocaleString()}
@@ -973,9 +973,9 @@ export function TargetFormDialog({
                                                                 </AccordionTrigger>
                                                                 <AccordionContent className="pb-4 pt-1 px-4 space-y-2">
                                                                     {Object.entries(data.cities).map(([city, cityData]) => (
-                                                                        <div key={city} className="p-3 bg-white rounded-xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-primary/40 transition-colors">
+                                                                        <div key={city} className="p-3 bg-card rounded-xl border border-border shadow-sm flex items-center justify-between group hover:border-primary/40 transition-colors">
                                                                             <div className="flex-1 min-w-0 pr-4">
-                                                                                <p className="text-[10px] font-bold text-slate-900 truncate uppercase">{city}</p>
+                                                                                <p className="text-[10px] font-bold text-foreground truncate uppercase">{city}</p>
                                                                                 <button 
                                                                                     onClick={() => handleRemoveArea(province, city)}
                                                                                     className="text-[9px] text-destructive font-black uppercase tracking-widest mt-1 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1"
@@ -988,10 +988,10 @@ export function TargetFormDialog({
                                                                                     type="number"
                                                                                     value={cityData.targetAmount || ""}
                                                                                     onChange={(e) => handleAreaTargetChange(province, city, Number(e.target.value))}
-                                                                                    className="h-8 pl-6 text-[10px] font-bold bg-slate-50 border-none rounded-lg focus:ring-primary"
+                                                                                    className="h-8 pl-6 text-[10px] font-bold bg-muted border-none rounded-lg focus:ring-primary"
                                                                                     placeholder="0"
                                                                                 />
-                                                                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[9px] font-bold text-slate-400">₱</span>
+                                                                                <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[9px] font-bold text-muted-foreground">₱</span>
                                                                             </div>
                                                                         </div>
                                                                     ))}
@@ -999,7 +999,7 @@ export function TargetFormDialog({
                                                             </AccordionItem>
                                                         ))
                                                     ) : (
-                                                        <div className="flex flex-col items-center justify-center py-20 text-slate-400 bg-white/50 rounded-2xl border-2 border-dashed border-slate-100 m-2">
+                                                        <div className="flex flex-col items-center justify-center py-20 text-muted-foreground bg-card/50 rounded-2xl border-2 border-dashed border-border m-2">
                                                             <MapPin className="w-8 h-8 mb-2 opacity-20" />
                                                             <p className="text-[10px] font-black uppercase tracking-widest">No areas added</p>
                                                         </div>
@@ -1010,24 +1010,24 @@ export function TargetFormDialog({
                                     </div>
 
                                     {/* Right: Supplier Side */}
-                                    <div className="flex flex-col border border-slate-200 rounded-2xl bg-slate-50/50 overflow-hidden shadow-sm min-h-0 max-h-full">
-                                        <div className="p-4 bg-white border-b border-slate-100 space-y-4">
+                                    <div className="flex flex-col border border-border rounded-2xl bg-muted/50 overflow-hidden shadow-sm min-h-0 max-h-full">
+                                        <div className="p-4 bg-card border-b border-border space-y-4">
                                             <div className="flex items-center gap-2 text-emerald-700 font-black text-xs uppercase tracking-widest">
                                                 <Truck className="w-4 h-4" /> Trade Supplier Allocation
-                                                <Badge variant="outline" className="ml-auto bg-blue-50 border-blue-100 text-blue-700 font-bold text-[9px] uppercase tracking-tighter">
+                                                <Badge variant="outline" className="ml-auto bg-blue-500/10 border-blue-500/20 text-blue-700 font-bold text-[9px] uppercase tracking-tighter">
                                                     Fetched from BIA
                                                 </Badge>
                                                 {totalAllocatedSupplier > 0 && (
-                                                    <Badge variant="outline" className="bg-emerald-50 border-emerald-100 text-emerald-700 font-bold">
+                                                    <Badge variant="outline" className="bg-emerald-500/10 border-emerald-500/20 text-emerald-700 font-bold">
                                                         {Math.round((totalAllocatedSupplier / (totalAllocatedSupplier || 1)) * 100)}% of limit
                                                     </Badge>
                                                 )}
                                             </div>
                                             <div className="relative">
-                                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+                                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
                                                 <Input
                                                     placeholder="Search supplier name..."
-                                                    className="h-9 pl-9 text-sm border-slate-100 bg-slate-50"
+                                                    className="h-9 pl-9 text-sm border-border bg-muted"
                                                     value={supplierSearch}
                                                     onChange={(e) => setSupplierSearch(e.target.value)}
                                                 />
@@ -1040,17 +1040,17 @@ export function TargetFormDialog({
                                                     filteredSuppliersList.map(supplier => {
                                                         const targetValue = supplierTargets.find(st => st.supplier_id === supplier.id)?.target_amount || 0;
                                                         return (
-                                                            <div key={supplier.id} className="p-3 bg-white rounded-xl border border-slate-100 shadow-sm flex items-center justify-between group hover:border-emerald-200 transition-colors">
+                                                            <div key={supplier.id} className="p-3 bg-card rounded-xl border border-border shadow-sm flex items-center justify-between group hover:border-emerald-500/30 transition-colors">
                                                                 <div className="flex-1 min-w-0 pr-4">
-                                                                    <p className="text-xs font-bold text-slate-900 truncate uppercase">{supplier.supplier_name}</p>
-                                                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-tight">Trade Partner</p>
+                                                                    <p className="text-xs font-bold text-foreground truncate uppercase">{supplier.supplier_name}</p>
+                                                                    <p className="text-[10px] text-muted-foreground font-black uppercase tracking-tight">Trade Partner</p>
                                                                 </div>
                                                                 <div className="relative w-32">
                                                                     <Input
                                                                         type="number"
                                                                         value={targetValue || ""}
                                                                         readOnly
-                                                                        className="h-8 pl-6 text-xs font-black bg-slate-100/50 border-none rounded-lg text-emerald-700 cursor-not-allowed shadow-inner"
+                                                                        className="h-8 pl-6 text-xs font-black bg-muted/50 border-none rounded-lg text-emerald-700 cursor-not-allowed shadow-inner"
                                                                         placeholder="0"
                                                                     />
                                                                     <span className="absolute left-2 top-1/2 -translate-y-1/2 text-[10px] font-bold text-emerald-600/50">₱</span>
@@ -1059,7 +1059,7 @@ export function TargetFormDialog({
                                                         );
                                                     })
                                                 ) : (
-                                                    <div className="flex flex-col items-center justify-center py-20 text-slate-400 bg-white/50 rounded-2xl border-2 border-dashed border-slate-100">
+                                                    <div className="flex flex-col items-center justify-center py-20 text-muted-foreground bg-card/50 rounded-2xl border-2 border-dashed border-border">
                                                         <Truck className="w-8 h-8 mb-2 opacity-20" />
                                                         <p className="text-[10px] font-black uppercase tracking-widest">No suppliers found</p>
                                                     </div>
@@ -1088,7 +1088,7 @@ export function TargetFormDialog({
                         </TabsContent>
 
                         <TabsContent value="skus" className="space-y-6 outline-none px-1 pr-2">
-                            <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 space-y-2">
+                            <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4 space-y-2">
                                 <h4 className="text-blue-900 font-semibold flex items-center gap-2">
                                     <Info className="w-4 h-4" /> About Tactical SKU
                                 </h4>
@@ -1097,9 +1097,9 @@ export function TargetFormDialog({
                                 </p>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 p-8 border-2 border-slate-100 rounded-3xl bg-slate-50/30">
+                            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 p-8 border-2 border-border rounded-3xl bg-muted/30">
                                 <div className="md:col-span-9 space-y-2.5">
-                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-500">Select Product</Label>
+                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">Select Product</Label>
                                     <ProductSearchSelect
                                         options={allProducts
                                             .filter(p => !tacticalSkus.some(ts => ts.product_id === p.product_id))
@@ -1110,13 +1110,13 @@ export function TargetFormDialog({
                                     />
                                 </div>
                                 <div className="md:col-span-3 space-y-2.5">
-                                    <Label className="text-xs font-black uppercase tracking-widest text-slate-500 text-center block">Target Quantity</Label>
+                                    <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground text-center block">Target Quantity</Label>
                                     <Input
                                         type="number"
                                         value={newItem.target_quantity || ""}
                                         onChange={(e) => setNewItem(prev => ({ ...prev, target_quantity: Number(e.target.value) }))}
                                         placeholder="Enter qty"
-                                        className="h-10 bg-white border-slate-200 rounded-xl focus:ring-slate-900"
+                                        className="h-10 bg-card border-border rounded-xl focus:ring-ring"
                                     />
                                 </div>
                                 <Button
@@ -1132,8 +1132,8 @@ export function TargetFormDialog({
                                 {tacticalSkus.length > 0 ? (
                                     <div className="space-y-3">
                                         {tacticalSkus.map((sku, index) => (
-                                            <div key={index} className="flex items-center gap-4 p-4 border rounded-2xl bg-white shadow-sm group">
-                                                <div className="w-12 h-12 rounded-lg bg-blue-50 flex items-center justify-center">
+                                            <div key={index} className="flex items-center gap-4 p-4 border rounded-2xl bg-card shadow-sm group">
+                                                <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
                                                     <Box className="w-6 h-6 text-blue-500" />
                                                 </div>
                                                 <div className="flex-1 min-w-0">
@@ -1156,20 +1156,20 @@ export function TargetFormDialog({
                                                         {/* Quantity Progress */}
                                                         <div className="space-y-1.5">
                                                             <div className="flex justify-between items-center px-0.5">
-                                                                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-tight">Target Quantity</Label>
-                                                                <span className="text-[10px] font-black text-slate-900">{sku.achieved_quantity || 0} / {sku.target_quantity}</span>
+                                                                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-tight">Target Quantity</Label>
+                                                                <span className="text-[10px] font-black text-foreground">{sku.achieved_quantity || 0} / {sku.target_quantity}</span>
                                                             </div>
                                                             <Input
                                                                 type="number"
                                                                 value={sku.target_quantity}
                                                                 onChange={(e) => handleSkuChange(index, "target_quantity", Number(e.target.value))}
-                                                                className="h-8 bg-slate-50 border-slate-100 text-xs font-bold rounded-lg mb-1"
+                                                                className="h-8 bg-muted border-border text-xs font-bold rounded-lg mb-1"
                                                             />
-                                                            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden mb-1">
+                                                            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mb-1">
                                                                 <div
                                                                     className={cn(
                                                                         "h-full transition-all duration-500",
-                                                                        (sku.achieved_quantity || 0) >= (sku.target_quantity || 0) ? "bg-emerald-500" : "bg-blue-500"
+                                                                        (sku.achieved_quantity || 0) >= (sku.target_quantity || 0) ? "bg-emerald-500/100" : "bg-blue-500/100"
                                                                     )}
                                                                     style={{ width: `${Math.min(((sku.achieved_quantity || 0) / (sku.target_quantity || 1)) * 100, 100)}%` }}
                                                                 />
@@ -1179,17 +1179,17 @@ export function TargetFormDialog({
                                                         {/* Volume Progress */}
                                                         <div className="space-y-1.5">
                                                             <div className="flex justify-between items-center px-0.5">
-                                                                <Label className="text-[10px] font-black text-slate-500 uppercase tracking-tight">Target Volume</Label>
-                                                                <span className="text-[10px] font-black text-slate-900">₱{(sku.achieved_volume || 0).toLocaleString()} / ₱{(Number(sku.target_value) || 0).toLocaleString()}</span>
+                                                                <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-tight">Target Volume</Label>
+                                                                <span className="text-[10px] font-black text-foreground">₱{(sku.achieved_volume || 0).toLocaleString()} / ₱{(Number(sku.target_value) || 0).toLocaleString()}</span>
                                                             </div>
-                                                            <div className="h-8 flex items-center px-3 bg-slate-50 border border-slate-100 rounded-lg text-slate-900 font-bold text-xs mb-1">
+                                                            <div className="h-8 flex items-center px-3 bg-muted border border-border rounded-lg text-foreground font-bold text-xs mb-1">
                                                                 ₱{Number(sku.target_value).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                                                             </div>
-                                                            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden mb-1">
+                                                            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mb-1">
                                                                 <div
                                                                     className={cn(
                                                                         "h-full transition-all duration-500",
-                                                                        (sku.achieved_volume || 0) >= (Number(sku.target_value) || 0) ? "bg-emerald-500" : "bg-blue-500"
+                                                                        (sku.achieved_volume || 0) >= (Number(sku.target_value) || 0) ? "bg-emerald-500/100" : "bg-blue-500/100"
                                                                     )}
                                                                     style={{ width: `${Math.min(((sku.achieved_volume || 0) / (Number(sku.target_value) || 1)) * 100, 100)}%` }}
                                                                 />
@@ -1212,8 +1212,8 @@ export function TargetFormDialog({
                     </Tabs>
                 </div>
 
-                <DialogFooter className="p-6 pt-4 border-t border-slate-100 bg-slate-50/30 gap-3 shrink-0">
-                    <Button variant="ghost" onClick={onClose} disabled={loading} className="px-6 h-10 gap-2 font-bold text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-xl">
+                <DialogFooter className="p-6 pt-4 border-t border-border bg-muted/30 gap-3 shrink-0">
+                    <Button variant="ghost" onClick={onClose} disabled={loading} className="px-6 h-10 gap-2 font-bold text-muted-foreground hover:text-foreground hover:bg-accent rounded-xl">
                         <X className="w-4 h-4" /> Cancel
                     </Button>
                     <Button onClick={handleSave} disabled={loading} className="bg-primary hover:bg-primary/90 text-primary-foreground px-10 h-10 gap-2 font-bold shadow-xl rounded-xl transition-all active:scale-[0.98]">
@@ -1227,3 +1227,4 @@ export function TargetFormDialog({
         </Dialog>
     );
 }
+

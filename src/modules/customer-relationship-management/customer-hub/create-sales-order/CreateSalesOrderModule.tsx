@@ -59,7 +59,7 @@ export default function CreateSalesOrderModule({ documentViewerUrl }: { document
                             <PackagePlus className="h-7 w-7" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-black tracking-tighter text-slate-900">
+                            <h1 className="text-3xl font-black tracking-tighter text-foreground">
                                 {existingOrderId ? "Update Sales Order" : "Create Sales Order"}
                             </h1>
                             <p className="text-sm text-muted-foreground font-medium">

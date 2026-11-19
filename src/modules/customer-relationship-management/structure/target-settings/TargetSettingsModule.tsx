@@ -156,7 +156,7 @@ export function TargetSettingsModule() {
         : 0;
 
     return (
-        <div className="p-8 space-y-10 max-w-[1400px] mx-auto bg-slate-50/30 min-h-screen">
+        <div className="p-8 space-y-10 max-w-[1400px] mx-auto bg-muted/30 min-h-screen">
             <FilterHeader
                 month={month}
                 year={year}
@@ -207,7 +207,7 @@ export function TargetSettingsModule() {
                 )}
 
                 {!loading && filteredSalesmen.length === 0 && (
-                    <div className="flex flex-col items-center justify-center py-20 text-muted-foreground bg-white rounded-3xl border border-dashed">
+                    <div className="flex flex-col items-center justify-center py-20 text-muted-foreground bg-card rounded-3xl border border-dashed">
                         <Search className="w-12 h-12 mb-4 opacity-20" />
                         <p className="font-bold">No salesmen found</p>
                         <p className="text-xs">Try adjusting your search or filters</p>

@@ -50,7 +50,7 @@ export function AreaSearchSelect({
                     variant="outline"
                     role="combobox"
                     aria-expanded={open}
-                    className={cn("w-full justify-between h-9 border-slate-200 rounded-lg px-3 text-[10px] font-bold bg-slate-50", !value && "text-muted-foreground", className)}
+                    className={cn("w-full justify-between h-9 border-border rounded-lg px-3 text-[10px] font-bold bg-muted", !value && "text-muted-foreground", className)}
                     disabled={disabled}
                 >
                     <span className="truncate">{selectedLabel || placeholder}</span>
@@ -58,7 +58,7 @@ export function AreaSearchSelect({
                 </Button>
             </PopoverTrigger>
             <PopoverContent 
-                className="w-[--radix-popover-trigger-width] p-0 border-slate-200 shadow-xl rounded-xl z-[9999]" 
+                className="w-[--radix-popover-trigger-width] p-0 border-border shadow-xl rounded-xl z-[9999]" 
                 align="start"
             >
                 <Command className="rounded-xl">
