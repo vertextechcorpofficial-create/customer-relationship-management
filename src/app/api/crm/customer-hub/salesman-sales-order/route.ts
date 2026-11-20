@@ -13,29 +13,25 @@ function failure(error: unknown) {
 }
 function isSameOriginSubmission(req: NextRequest) {
     const origin = req.headers.get("origin");
-    const configuredOrigin = process.env.SALESMAN_ORDER_PUBLIC_ORIGIN?.trim();
-    if (!origin) return !configuredOrigin;
+    if (!origin) return false;
 
     try {
         const submitted = new URL(origin);
-        if (configuredOrigin) {
-            const expected = new URL(configuredOrigin);
-            // A deployment can pin the public origin when its proxy rewrites
-            // the host, port or protocol. Do not fall back on a mismatch.
-            return (expected.protocol === "http:" || expected.protocol === "https:")
-                && (configuredOrigin === expected.origin || configuredOrigin === `${expected.origin}/`)
-                && origin === submitted.origin
-                && submitted.origin === expected.origin;
-        }
-        // Behind a reverse proxy, Next's request URL can use the proxy's
-        // internal host/protocol. Prefer the public forwarding headers supplied
-        // by the hosting proxy, and fall back to the request host locally.
+        if (origin !== submitted.origin || !["http:", "https:"].includes(submitted.protocol)) return false;
+
+        const host = req.headers.get("host")?.toLowerCase();
         const forwardedHost = req.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
-        const expectedHost = forwardedHost || req.headers.get("host") || req.nextUrl.host;
         const forwardedProto = req.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
         const expectedProtocol = forwardedProto ? `${forwardedProto.replace(/:$/, "")}:` : req.nextUrl.protocol;
-        return submitted.host.toLowerCase() === expectedHost.toLowerCase()
-            && submitted.protocol.toLowerCase() === expectedProtocol.toLowerCase();
+        if (submitted.protocol !== expectedProtocol.toLowerCase()) return false;
+
+        // Some proxies forward the hostname without its port. Recover the
+        // port only when both headers agree on the hostname.
+        const forwarded = forwardedHost?.toLowerCase();
+        if (forwarded && host?.startsWith(`${forwarded}:`) && /^\d+$/.test(host.slice(forwarded.length + 1))) {
+            return submitted.host === host;
+        }
+        return submitted.host === (forwarded || host || req.nextUrl.host.toLowerCase());
     } catch {
         return false;
     }
