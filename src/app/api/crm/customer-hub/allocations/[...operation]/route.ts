@@ -49,11 +49,11 @@ function parseIds(value: unknown): number[] {
     if (ids.some(id => !Number.isSafeInteger(id) || id <= 0) || new Set(ids).size !== ids.length) throw new AllocationError("INVALID_REQUEST", "Order IDs must be unique positive integers.", 400);
     return ids;
 }
-async function centralDraftOrders(orderIds: number[], context: Awaited<ReturnType<typeof resolveAllocationAccess>>) {
+async function allocationWarehouseDraftOrders(orderIds: number[], context: Awaited<ReturnType<typeof resolveAllocationAccess>>) {
     const rows = await directusPage<Record<string, unknown>>("sales_order", {
         order_id: { _in: orderIds }, branch_id: { _eq: context.warehouses[0].id }, order_status: { _eq: "Draft" },
     }, "order_id,branch_id,order_status,allocated_amount,modified_date,for_consolidation_at", 150, 0, "order_id");
-    if (rows.length !== orderIds.length) throw new AllocationError("ORDER_NOT_ELIGIBLE", "Every selected order must still be a Draft at Central Warehouse.", 409);
+    if (rows.length !== orderIds.length) throw new AllocationError("ORDER_NOT_ELIGIBLE", "Every selected order must still be a Draft at Warehouse - DRY22.", 409);
     return rows;
 }
 function amountForAllocation(netAmount: unknown, orderedQuantity: bigint, allocatedQuantity: bigint): number {
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest, route: RouteContext) {
             });
             if (new Set(updates.map(item => item.detailId)).size !== updates.length) throw new AllocationError("INVALID_REQUEST", "A detail line can only appear once per save.", 400);
             const orderIds = [...new Set(updates.map(item => item.orderId))];
-            const headers = await centralDraftOrders(orderIds, context);
+            const headers = await allocationWarehouseDraftOrders(orderIds, context);
             const orderHeaderMap = new Map(headers.map(row => [Number(row.order_id), row]));
             const details = await directusPage<Record<string, unknown>>("sales_order_details", { order_id: { _in: orderIds } }, "detail_id,order_id,product_id,ordered_quantity,allocated_quantity,served_quantity,unit_price,net_amount,allocated_amount", 5000, 0, "detail_id");
             const detailsById = new Map(details.map(row => [Number(row.detail_id), row]));
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest, route: RouteContext) {
 
             // Recheck the latest inventory and all Draft allocations before writing.
             const snapshot = await allocationSnapshot(context, warehouse, 1);
-            if (snapshot.inventoryError) throw new AllocationError("STOCK_UNVERIFIED", "Central Warehouse inventory could not be verified. No allocation was saved.", 503);
+            if (snapshot.inventoryError) throw new AllocationError("STOCK_UNVERIFIED", "Warehouse - DRY22 inventory could not be verified. No allocation was saved.", 503);
             const snapshotLines = new Map(snapshot.orders.flatMap(order => order.lines.map(line => [line.id, { order, line }] as const)));
             const targetChangesByStockKey = new Map<string, bigint>();
             for (const update of updates) {
@@ -173,7 +173,7 @@ export async function POST(request: NextRequest, route: RouteContext) {
                 }
                 const inventory = snapshot.inventory.filter(row => String(row.productId) === productId && String(row.supplierId ?? "unknown") === supplierId && canonicalUnit(row.unit) === unit);
                 if (inventory.length !== 1 || inventory[0].ambiguous || inventory[0].reportedStock === null) throw new AllocationError("STOCK_UNVERIFIED", `Inventory for product ${productId} is unknown or ambiguous. No allocation was saved.`, 409);
-                if (existing + delta > quantity(inventory[0].reportedStock)) throw new AllocationError("INSUFFICIENT_STOCK", `Central Warehouse reported stock is insufficient for product ${productId}. No allocation was saved.`, 409);
+                if (existing + delta > quantity(inventory[0].reportedStock)) throw new AllocationError("INSUFFICIENT_STOCK", `Warehouse - DRY22 reported stock is insufficient for product ${productId}. No allocation was saved.`, 409);
             }
 
             const lineValues = new Map<number, { quantity: bigint; amount: number }>();
@@ -207,7 +207,7 @@ export async function POST(request: NextRequest, route: RouteContext) {
 
         if (operation === "approve") {
             const orderIds = parseIds(body.orderIds);
-            const headers = await centralDraftOrders(orderIds, context);
+            const headers = await allocationWarehouseDraftOrders(orderIds, context);
             const details = await directusPage<Record<string, unknown>>("sales_order_details", { order_id: { _in: orderIds } }, "detail_id,order_id,ordered_quantity,allocated_quantity", 5000, 0, "detail_id");
             for (const orderId of orderIds) {
                 const lines = details.filter(row => Number(row.order_id) === orderId);
