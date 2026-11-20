@@ -13,10 +13,20 @@ function failure(error: unknown) {
 }
 function isSameOriginSubmission(req: NextRequest) {
     const origin = req.headers.get("origin");
-    if (!origin) return true;
+    const configuredOrigin = process.env.SALESMAN_ORDER_PUBLIC_ORIGIN?.trim();
+    if (!origin) return !configuredOrigin;
 
     try {
         const submitted = new URL(origin);
+        if (configuredOrigin) {
+            const expected = new URL(configuredOrigin);
+            // A deployment can pin the public origin when its proxy rewrites
+            // the host, port or protocol. Do not fall back on a mismatch.
+            return (expected.protocol === "http:" || expected.protocol === "https:")
+                && (configuredOrigin === expected.origin || configuredOrigin === `${expected.origin}/`)
+                && origin === submitted.origin
+                && submitted.origin === expected.origin;
+        }
         // Behind a reverse proxy, Next's request URL can use the proxy's
         // internal host/protocol. Prefer the public forwarding headers supplied
         // by the hosting proxy, and fall back to the request host locally.
