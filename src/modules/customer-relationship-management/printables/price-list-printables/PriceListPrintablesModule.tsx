@@ -80,7 +80,7 @@ export function PriceListPrintablesModule() {
                 <p className="text-muted-foreground font-medium ml-12">Generate and print professional product price lists for specific salesmen and suppliers.</p>
             </header>
 
-            <Card className="border-none shadow-2xl shadow-slate-200/60 rounded-[2.5rem] overflow-hidden bg-card/80 backdrop-blur-sm border border-border">
+            <Card className="border-none shadow-2xl shadow-black/10 dark:shadow-black/40 rounded-[2.5rem] overflow-hidden bg-card/80 backdrop-blur-sm border border-border">
                 <CardHeader className="p-8 pb-4">
                     <CardTitle className="text-xl font-bold flex items-center gap-2">
                         <FileText className="text-blue-500" size={20} />
@@ -211,23 +211,23 @@ export function PriceListPrintablesModule() {
             </Card>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="p-6 bg-card rounded-3xl shadow-lg shadow-slate-100 border border-border flex flex-col items-center text-center gap-3">
+                <div className="p-6 bg-card rounded-3xl shadow-lg shadow-black/10 dark:shadow-black/40 border border-border flex flex-col items-center text-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-green-500/10 flex items-center justify-center">
-                        <Badge variant="outline" className="bg-green-500/100 text-white border-none text-[10px] h-5">1</Badge>
+                        <Badge variant="outline" className="bg-green-500 text-white border-none text-[10px] h-5">1</Badge>
                     </div>
                     <h3 className="font-bold text-foreground">Configure</h3>
                     <p className="text-xs text-muted-foreground font-medium">Pick a salesman, supplier, and your preferred layout.</p>
                 </div>
-                <div className="p-6 bg-card rounded-3xl shadow-lg shadow-slate-100 border border-border flex flex-col items-center text-center gap-3">
+                <div className="p-6 bg-card rounded-3xl shadow-lg shadow-black/10 dark:shadow-black/40 border border-border flex flex-col items-center text-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-blue-500/10 flex items-center justify-center">
-                        <Badge variant="outline" className="bg-blue-500/100 text-white border-none text-[10px] h-5">2</Badge>
+                        <Badge variant="outline" className="bg-blue-500 text-white border-none text-[10px] h-5">2</Badge>
                     </div>
                     <h3 className="font-bold text-foreground">Preview</h3>
                     <p className="text-xs text-muted-foreground font-medium">Review the price list in a live modal before printing.</p>
                 </div>
-                <div className="p-6 bg-card rounded-3xl shadow-lg shadow-slate-100 border border-border flex flex-col items-center text-center gap-3">
+                <div className="p-6 bg-card rounded-3xl shadow-lg shadow-black/10 dark:shadow-black/40 border border-border flex flex-col items-center text-center gap-3">
                     <div className="h-10 w-10 rounded-full bg-purple-500/10 flex items-center justify-center">
-                        <Badge variant="outline" className="bg-purple-500/100 text-white border-none text-[10px] h-5">3</Badge>
+                        <Badge variant="outline" className="bg-purple-500 text-white border-none text-[10px] h-5">3</Badge>
                     </div>
                     <h3 className="font-bold text-foreground">Final Print</h3>
                     <p className="text-xs text-muted-foreground font-medium">Use the built-in PDF controls to print or save the document.</p>

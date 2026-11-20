@@ -113,7 +113,7 @@ export function SalesOrderHeader({
                 <div className="flex items-center gap-3">
                     <span className="text-[10px] uppercase font-black text-muted-foreground tracking-widest leading-none">Price Type</span>
                     <Select value={priceTypeId?.toString() || ""} onValueChange={onPriceTypeChange}>
-                        <SelectTrigger className="h-7 min-w-[110px] bg-sky-500/10 border-sky-500/30 text-sky-700 text-[10px] font-black uppercase hover:bg-sky-500/100/25 transition-colors">
+                        <SelectTrigger className="h-7 min-w-[110px] bg-sky-500/10 border-sky-500/30 text-sky-700 text-[10px] font-black uppercase hover:bg-sky-500/25 transition-colors">
                             <SelectValue placeholder="Price Type" />
                         </SelectTrigger>
                         <SelectContent>

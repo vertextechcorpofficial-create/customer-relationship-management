@@ -1169,7 +1169,7 @@ export function TargetFormDialog({
                                                                 <div
                                                                     className={cn(
                                                                         "h-full transition-all duration-500",
-                                                                        (sku.achieved_quantity || 0) >= (sku.target_quantity || 0) ? "bg-emerald-500/100" : "bg-blue-500/100"
+                                                                        (sku.achieved_quantity || 0) >= (sku.target_quantity || 0) ? "bg-emerald-500" : "bg-blue-500"
                                                                     )}
                                                                     style={{ width: `${Math.min(((sku.achieved_quantity || 0) / (sku.target_quantity || 1)) * 100, 100)}%` }}
                                                                 />
@@ -1189,7 +1189,7 @@ export function TargetFormDialog({
                                                                 <div
                                                                     className={cn(
                                                                         "h-full transition-all duration-500",
-                                                                        (sku.achieved_volume || 0) >= (Number(sku.target_value) || 0) ? "bg-emerald-500/100" : "bg-blue-500/100"
+                                                                        (sku.achieved_volume || 0) >= (Number(sku.target_value) || 0) ? "bg-emerald-500" : "bg-blue-500"
                                                                     )}
                                                                     style={{ width: `${Math.min(((sku.achieved_volume || 0) / (Number(sku.target_value) || 1)) * 100, 100)}%` }}
                                                                 />

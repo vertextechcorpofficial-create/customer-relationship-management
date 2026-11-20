@@ -72,7 +72,7 @@ export default function SalesOrderDraftModule() {
             {/* Header section with icon mask */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded-xl bg-orange-500/100/10 flex items-center justify-center text-orange-600 shadow-inner">
+                    <div className="h-12 w-12 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-600 shadow-inner">
                         <PackagePlus className="h-7 w-7" />
                     </div>
                     <div>
