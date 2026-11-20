@@ -38,7 +38,7 @@ export function OrderConfirmationDialog({
             <DialogContent className="sm:max-w-[450px] p-0 overflow-hidden border-none bg-card/95 backdrop-blur-xl shadow-2xl rounded-3xl">
                 <div className="bg-gradient-to-br from-indigo-500/10 via-purple-500/5 to-transparent p-8">
                     <DialogHeader className="space-y-4">
-                        <div className="mx-auto w-16 h-16 rounded-2xl bg-indigo-500/100/10 flex items-center justify-center text-indigo-600 shadow-inner">
+                        <div className="mx-auto w-16 h-16 rounded-2xl bg-indigo-500/10 flex items-center justify-center text-indigo-600 shadow-inner">
                             <PackageSearch className="w-9 h-9" />
                         </div>
                         <div className="text-center space-y-1">
@@ -52,8 +52,8 @@ export function OrderConfirmationDialog({
                     </DialogHeader>
 
                     {hasZeroAllocation && (
-                        <div className="mt-6 p-4 rounded-2xl bg-amber-500/100/5 border border-amber-500/30/50 flex gap-4 items-start animate-in fade-in slide-in-from-top-2 duration-500">
-                            <div className="p-2 rounded-lg bg-amber-500/100/10 text-amber-600">
+                        <div className="mt-6 p-4 rounded-2xl bg-amber-500/5 border border-amber-500/30/50 flex gap-4 items-start animate-in fade-in slide-in-from-top-2 duration-500">
+                            <div className="p-2 rounded-lg bg-amber-500/10 text-amber-600">
                                 <AlertCircle className="w-5 h-5" />
                             </div>
                             <div className="flex flex-col">

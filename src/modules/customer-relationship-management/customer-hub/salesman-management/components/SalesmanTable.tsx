@@ -154,7 +154,7 @@ export function SalesmanTable({
                                             <div className="flex flex-col gap-2">
                                                 {s.isInventory ? (
                                                     <Badge
-                                                        className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/100/25 text-[9px] font-black w-fit px-1.5 py-0">
+                                                        className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 hover:bg-emerald-500/25 text-[9px] font-black w-fit px-1.5 py-0">
                                                         <Package className="w-3 h-3 mr-1"/> Inventory Access
                                                     </Badge>
                                                 ) : (
@@ -166,7 +166,7 @@ export function SalesmanTable({
 
                                                 {s.canCollect ? (
                                                     <Badge
-                                                        className="bg-blue-500/10 text-blue-600 border-blue-500/30 hover:bg-blue-500/100/25 text-[9px] font-black w-fit px-1.5 py-0">
+                                                        className="bg-blue-500/10 text-blue-600 border-blue-500/30 hover:bg-blue-500/25 text-[9px] font-black w-fit px-1.5 py-0">
                                                         <Banknote className="w-3 h-3 mr-1"/> Collection Rights
                                                     </Badge>
                                                 ) : (

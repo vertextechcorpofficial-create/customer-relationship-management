@@ -306,7 +306,7 @@ export function SalesOrderCheckout({
                                                                         <span className="text-[9px] font-black text-primary/60 uppercase tracking-widest leading-none">{item.uom}</span>
                                                                     </div>
                                                                     {hasError && (
-                                                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-1.5 flex items-center gap-1 bg-red-500/100 text-[9px] text-white px-3 py-1 rounded-full font-black uppercase tracking-widest shadow-lg animate-in fade-in slide-in-from-top-1 duration-300 z-50 whitespace-nowrap">
+                                                                        <div className="absolute left-1/2 -translate-x-1/2 bottom-1.5 flex items-center gap-1 bg-red-500 text-[9px] text-white px-3 py-1 rounded-full font-black uppercase tracking-widest shadow-lg animate-in fade-in slide-in-from-top-1 duration-300 z-50 whitespace-nowrap">
                                                                             <AlertCircle className="w-3 h-3" />
                                                                             {isExceedingStock ? "Exceeds Stock" : "Exceeds Order Qty"}
                                                                         </div>
@@ -392,7 +392,7 @@ export function SalesOrderCheckout({
                                         <span className="text-[10px] text-muted-foreground font-black uppercase tracking-widest mb-1 opacity-60">VAT</span>
                                         <span className="text-lg font-black tabular-nums opacity-60 tracking-tight">{formatCurrency(summary.vatAmount)}</span>
                                     </div>
-                                    <div className="flex flex-col ml-auto bg-emerald-500/100/10 p-5 rounded-2xl border border-emerald-500/20 backdrop-blur-xl">
+                                    <div className="flex flex-col ml-auto bg-emerald-500/10 p-5 rounded-2xl border border-emerald-500/20 backdrop-blur-xl">
                                         <span className="text-[10px] text-emerald-400 font-black uppercase tracking-[0.2em] mb-1">Allocated Amount</span>
                                         <span className="text-4xl font-black text-emerald-400 tabular-nums tracking-tighter tabular-nums underline underline-offset-[12px] decoration-emerald-500/30">
                                             {formatCurrency(summary.allocatedAmount)}
@@ -434,7 +434,7 @@ export function SalesOrderCheckout({
                                                 </div>
                                             )}
                                             <Button
-                                                className={`w-full h-16 text-base font-black uppercase tracking-[0.2em] shadow-2xl transition-all duration-500 rounded-xl ${anyHasError ? 'bg-slate-700 opacity-50 cursor-not-allowed text-slate-400' : 'bg-emerald-500/100 hover:bg-emerald-400 text-slate-950 hover:scale-[1.02] hover:shadow-emerald-500/20 active:scale-95 shadow-emerald-500/10'}`}
+                                                className={`w-full h-16 text-base font-black uppercase tracking-[0.2em] shadow-2xl transition-all duration-500 rounded-xl ${anyHasError ? 'bg-slate-700 opacity-50 cursor-not-allowed text-slate-400' : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 hover:scale-[1.02] hover:shadow-emerald-500/20 active:scale-95 shadow-emerald-500/10'}`}
                                                 onClick={handleConfirmClick}
                                                 disabled={submitting || anyHasError}
                                             >

@@ -85,7 +85,7 @@ export function SalesOrderEncoding({
                             size="icon"
                             className={`h-9 w-9 border-border transition-all ${
                                 showOnlyAvailable 
-                                ? "bg-emerald-500/100 text-white border-emerald-500 hover:bg-emerald-600 shadow-md shadow-emerald-500/20" 
+                                ? "bg-emerald-500 text-white border-emerald-500 hover:bg-emerald-600 shadow-md shadow-emerald-500/20" 
                                 : "bg-card text-muted-foreground hover:bg-muted"
                             }`}
                             onClick={() => setShowOnlyAvailable(!showOnlyAvailable)}

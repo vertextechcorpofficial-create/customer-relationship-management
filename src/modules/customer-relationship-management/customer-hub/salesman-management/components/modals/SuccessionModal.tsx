@@ -89,7 +89,7 @@ export function SuccessionModal({
             <DialogContent className="sm:max-w-[440px] p-0 overflow-hidden border-none shadow-2xl rounded-2xl bg-card animate-in zoom-in-95 duration-200">
                 <DialogHeader className="p-8 border-b bg-muted/50">
                     <div className="flex items-center gap-4">
-                        <div className="h-12 w-12 rounded-2xl bg-amber-500/100/10 flex items-center justify-center text-amber-600 shadow-inner shrink-0">
+                        <div className="h-12 w-12 rounded-2xl bg-amber-500/10 flex items-center justify-center text-amber-600 shadow-inner shrink-0">
                             <AlertTriangle className="h-6 w-6" />
                         </div>
                         <div>
@@ -115,7 +115,7 @@ export function SuccessionModal({
                                         {selectedSalesman?.salesman_name}
                                     </p>
                                 </div>
-                                <div className="space-y-1.5 p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-lg shadow-slate-200">
+                                <div className="space-y-1.5 p-4 rounded-xl bg-slate-900 border border-slate-800 shadow-lg shadow-black/10 dark:shadow-black/40">
                                     <p className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none">
                                         Impact Exposure
                                     </p>
