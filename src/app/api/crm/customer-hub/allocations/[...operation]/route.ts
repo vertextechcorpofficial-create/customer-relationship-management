@@ -211,7 +211,7 @@ export async function POST(request: NextRequest, route: RouteContext) {
             const details = await directusPage<Record<string, unknown>>("sales_order_details", { order_id: { _in: orderIds } }, "detail_id,order_id,ordered_quantity,allocated_quantity", 5000, 0, "detail_id");
             for (const orderId of orderIds) {
                 const lines = details.filter(row => Number(row.order_id) === orderId);
-                if (!lines.length || lines.some(line => quantity(String(line.allocated_quantity ?? "0")) < quantity(String(line.ordered_quantity)))) throw new AllocationError("ALLOCATION_INCOMPLETE", `Order ${orderId} must have every line fully allocated before approval.`, 409);
+                if (!lines.length || !lines.some(line => quantity(String(line.ordered_quantity ?? "0")) > 0n && quantity(String(line.allocated_quantity ?? "0")) >= quantity(String(line.ordered_quantity)))) throw new AllocationError("ALLOCATION_INCOMPLETE", `Order ${orderId} must have at least one line fully allocated before approval.`, 409);
             }
             const now = new Date().toISOString();
             const operations: WriteOperation[] = headers.map(header => ({ collection: "sales_order", id: Number(header.order_id),
