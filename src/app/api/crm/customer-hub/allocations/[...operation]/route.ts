@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AllocationError, directusPage, directusWrite, requireWarehouse, resolveAllocationAccess } from "../_lib/access";
+import { AllocationError, directusPage, directusWrite, isSameOriginRequest, requireWarehouse, resolveAllocationAccess } from "../_lib/access";
 import { allocationSnapshot, READINESS_BLOCKERS } from "../_lib/read-model";
 import { quantity, quantityText } from "@/modules/customer-relationship-management/customer-hub/sales-order-allocation/domain/quantities";
 import { canonicalUnit } from "@/modules/customer-relationship-management/customer-hub/sales-order-allocation/domain/units";
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest, route: RouteContext) {
     try {
         const context = await resolveAllocationAccess();
         const operation = (await route.params).operation.join("/");
-        if (request.headers.get("origin") !== request.nextUrl.origin) throw new AllocationError("ORIGIN_DENIED", "Allocation writes require a same-origin request.");
+        if (!isSameOriginRequest(request)) throw new AllocationError("ORIGIN_DENIED", "Allocation writes require a same-origin request.");
         let body: Record<string, unknown>;
         try { body = await request.json(); } catch { throw new AllocationError("INVALID_REQUEST", "Invalid allocation request.", 400); }
         const warehouse = requireWarehouse(context, context.warehouses[0].id);

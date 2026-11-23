@@ -1,4 +1,5 @@
 import "server-only";
+import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import type { AllocationContext, Warehouse } from "@/modules/customer-relationship-management/customer-hub/sales-order-allocation/types";
 
@@ -8,6 +9,29 @@ export class AllocationError extends Error {
     constructor(public code: string, message: string, public status = 403) { super(message); }
 }
 export type RecordRow = Record<string, unknown>;
+
+export function isSameOriginRequest(request: NextRequest): boolean {
+    const origin = request.headers.get("origin");
+    if (!origin) return false;
+    try {
+        const submitted = new URL(origin);
+        if (!["http:", "https:"].includes(submitted.protocol)) return false;
+
+        const host = request.headers.get("host")?.trim();
+        const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+        const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim().replace(/:$/, "");
+        const hosts = [host, forwardedHost, request.nextUrl.host]
+            .filter((value): value is string => Boolean(value))
+            .map(value => value.toLowerCase());
+        const protocols = [request.nextUrl.protocol.replace(/:$/, ""), forwardedProto]
+            .filter((value): value is string => Boolean(value))
+            .map(value => `${value}:`);
+
+        return hosts.includes(submitted.host.toLowerCase()) && protocols.includes(submitted.protocol.toLowerCase());
+    } catch {
+        return false;
+    }
+}
 
 export async function directusPage<T>(collection: string, filter: object, fields: string, limit = 200, offset = 0, sort = "id"): Promise<T[]> {
     const base = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/+$/, "");
