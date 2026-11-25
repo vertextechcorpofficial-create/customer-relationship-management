@@ -99,7 +99,6 @@ export function Matrix({ snapshot, warehouses, onRefresh }: { snapshot: Allocati
     const allRows = [...rowMap.values()].sort((a, b) => warehouseName(a.warehouseId).localeCompare(warehouseName(b.warehouseId)) || a.product.localeCompare(b.product) || a.unit.localeCompare(b.unit));
     const rows = allRows.filter(row => (!search || `${row.product} ${row.sku} ${row.supplier}`.toLowerCase().includes(search.toLowerCase())));
 
-    let invalid = false;
     const competingByRow = new Map<string, { order: AllocationOrder; line: AllocationOrder["lines"][number] }[]>();
     for (const order of snapshot.orders) for (const line of order.lines) {
         const key = `${order.warehouseId}:${line.productId}:${order.supplierId ?? "unknown"}:${line.unit}`;
@@ -117,12 +116,10 @@ export function Matrix({ snapshot, warehouses, onRefresh }: { snapshot: Allocati
             if (!raw) continue;
             try {
                 const assigned = quantity(raw);
-                if (!/^\d+(?:\.\d{1,6})?$/.test(raw) || assigned > quantity(line.ordered) || assigned < quantity(line.served)) invalid = true;
                 planned += assigned;
                 if (assigned > 0n) usedLines++;
-            } catch { invalid = true; }
+            } catch { /* The edited field displays its own validation state. */ }
         }
-        if (stock === null && planned > 0n || stock !== null && planned > stock) invalid = true;
         metricsByRow.set(row.key, { stock, planned, remaining: stock === null ? null : stock - planned, usedLines });
     }
     const rowVirtualizer = useVirtualizer({ count: rows.length, getScrollElement: () => scrollRef.current, estimateSize: () => 68, overscan: 8 });
@@ -196,7 +193,10 @@ export function Matrix({ snapshot, warehouses, onRefresh }: { snapshot: Allocati
         return owner ? [{ orderId: owner.order.id, detailId, quantity: value || "0" }] : [];
     });
     async function savePlan() {
-        if (!dirtyUpdates.length || invalid) return;
+        // The API is the final authority for stock and stale-order checks. Do
+        // not silently swallow a save because another visible row is invalid;
+        // submit the changed lines and show the server's actionable response.
+        if (!dirtyUpdates.length) return;
         setSaving(true); setOperationError("");
         try {
             await allocationProvider.saveAllocations(dirtyUpdates);
@@ -230,7 +230,7 @@ export function Matrix({ snapshot, warehouses, onRefresh }: { snapshot: Allocati
     }
     function isOrderApprovalEligible(order: AllocationOrder) {
         const allocatedLines = order.lines.filter(line => {
-            try { return quantity(line.ordered) > 0n && quantity(values[line.id] || "0") >= quantity(line.ordered); }
+            try { return quantity(values[line.id] || "0") > 0n; }
             catch { return false; }
         });
         if (!allocatedLines.length) return false;
@@ -279,12 +279,12 @@ export function Matrix({ snapshot, warehouses, onRefresh }: { snapshot: Allocati
         <OrderPagination pageIndex={safePageIndex} pageCount={pageCount} pageSize={pageSize} total={orders.length} onPage={setPageIndex} />
          {operationError && <p role="alert" className="rounded-lg border border-destructive/30 p-3 text-sm text-destructive">{operationError} Local edits were reverted to the last saved values. If rollback was incomplete, refresh and verify before retrying.</p>}
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs"><span>{rows.length} products · {allRows.length} product/stock rows</span><span className="font-semibold">Preview total · all orders: ₱{totalAmount.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
-         <div className="sticky bottom-2 z-30 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-background/95 p-3 shadow-lg backdrop-blur"><div className="min-w-48"><p className="text-sm font-semibold">Editing Draft allocations</p><p className="text-xs text-muted-foreground">{selectedApprovalIds.length} selected · {dirtyUpdates.length} unsaved · {eligibleSelected} selected eligible</p></div><div className="flex flex-wrap items-center gap-2"><Button variant="outline" disabled={!dirtyUpdates.length || saving} onClick={() => { setValues({ ...savedValues }); setFieldErrors({}); }}>Discard edits</Button><Button disabled={invalid || !dirtyUpdates.length || saving} onClick={savePlan}>{saving ? "Saving…" : `Save allocations (${dirtyUpdates.length})`}</Button><Button variant="secondary" disabled={!selectedApprovalIds.length || eligibleSelected !== selectedApprovalIds.length || dirtyUpdates.length > 0 || saving} title={selectedApprovalIds.length && eligibleSelected !== selectedApprovalIds.length ? "Select orders with at least one fully allocated line; save all edits first." : dirtyUpdates.length ? "Save pending changes before approval." : undefined} onClick={() => requestApproval(selectedApprovalIds)}><CheckCheck className="mr-2 h-4 w-4" />Approve selected ({selectedApprovalIds.length}) → For Consolidation</Button></div></div>
+         <div className="sticky bottom-2 z-30 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-background/95 p-3 shadow-lg backdrop-blur"><div className="min-w-48"><p className="text-sm font-semibold">Editing Draft allocations</p><p className="text-xs text-muted-foreground">{selectedApprovalIds.length} selected · {dirtyUpdates.length} unsaved · {eligibleSelected} selected eligible</p></div><div className="flex flex-wrap items-center gap-2"><Button variant="outline" disabled={!dirtyUpdates.length || saving} onClick={() => { setValues({ ...savedValues }); setFieldErrors({}); }}>Discard edits</Button><Button disabled={!dirtyUpdates.length || saving} onClick={savePlan}>{saving ? "Saving…" : `Save allocations (${dirtyUpdates.length})`}</Button><Button variant="secondary" disabled={!selectedApprovalIds.length || eligibleSelected !== selectedApprovalIds.length || dirtyUpdates.length > 0 || saving} title={selectedApprovalIds.length && eligibleSelected !== selectedApprovalIds.length ? "Select orders with at least one positive allocation; save all edits first." : dirtyUpdates.length ? "Save pending changes before approval." : undefined} onClick={() => requestApproval(selectedApprovalIds)}><CheckCheck className="mr-2 h-4 w-4" />Approve selected ({selectedApprovalIds.length}) → For Consolidation</Button></div></div>
         <AlertDialog open={approvalPreviewIds.length > 0} onOpenChange={open => { if (!open && !saving) setApprovalPreviewIds([]); }}>
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Confirm allocation approval</AlertDialogTitle>
-                     <AlertDialogDescription>Review the saved quantities and amounts below. Confirming moves orders with at least one fully allocated line to For Consolidation. Saved allocations do not reserve or decrement physical inventory.</AlertDialogDescription>
+                     <AlertDialogDescription>Review the saved quantities and amounts below. Confirming moves orders with at least one positive allocation to For Consolidation. Saved allocations do not reserve or decrement physical inventory.</AlertDialogDescription>
                 </AlertDialogHeader>
                 <div className="max-h-[50vh] space-y-3 overflow-y-auto">
                     {approvalPreviewOrders.map(order => <section key={order.id} className="rounded-md border p-3">
