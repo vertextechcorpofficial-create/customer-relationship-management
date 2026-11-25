@@ -14,6 +14,7 @@ export interface NormalizeRequest {
     invoice_id: number;
     invoice_no: string;
     order_id: number;
+    order_no: string;
     customer_name?: string;
     requested_by: number;
     requested_by_name?: string;

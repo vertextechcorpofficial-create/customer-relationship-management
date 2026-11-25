@@ -58,6 +58,7 @@ interface DirectusUserRow {
 
 interface DirectusOrderRow {
     order_id: number;
+    order_no?: string;
     customer_code?: string;
 }
 
@@ -123,9 +124,10 @@ export async function GET() {
         // Resolve customer display names through the sales order's customer code.
         const orderIds = Array.from(new Set(requests.map(r => r.order_id).filter(Boolean)));
         const customerNameByOrder: Record<number, string> = {};
+        const orderNumberByOrder: Record<number, string> = {};
         if (orderIds.length > 0) {
             try {
-                const orderUrl = `${DIRECTUS_URL}/items/sales_order?filter[order_id][_in]=${orderIds.join(",")}&fields=order_id,customer_code`;
+                const orderUrl = `${DIRECTUS_URL}/items/sales_order?filter[order_id][_in]=${orderIds.join(",")}&fields=order_id,order_no,customer_code`;
                 const orderRes = await fetchWithRetry(orderUrl, { headers, cache: "no-store" });
                 const orderJson = await orderRes.json();
                 const orders: DirectusOrderRow[] = orderJson.data || [];
@@ -141,6 +143,7 @@ export async function GET() {
                     });
                 }
                 orders.forEach(order => {
+                    orderNumberByOrder[order.order_id] = order.order_no || String(order.order_id);
                     if (order.customer_code) customerNameByOrder[order.order_id] = customerNameByCode[order.customer_code] || "";
                 });
             } catch {
@@ -191,6 +194,7 @@ export async function GET() {
 
         const enriched = requests.map((r) => ({
             ...r,
+            order_no: orderNumberByOrder[r.order_id] || String(r.order_id),
             requested_by_name: userMap[r.requested_by] ?? `User #${r.requested_by}`,
             customer_name: customerNameByOrder[r.order_id] || "",
             invoice_details: detailsMap[r.invoice_id] || []
