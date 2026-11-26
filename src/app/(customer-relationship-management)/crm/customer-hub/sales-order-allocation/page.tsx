@@ -3,7 +3,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { NavUser } from "@/components/shared/app-sidebar/nav-user";
 import { cookies } from "next/headers";
-import SalesOrderAllocationModule from "@/modules/customer-relationship-management/customer-hub/sales-order-allocation/components/AllocationMatrix";
+import SalesOrderAllocationModule from "@/modules/customer-relationship-management/customer-hub/sales-order-allocation/components/AllocationWorkspace";
 
 export const dynamic = "force-dynamic";
 

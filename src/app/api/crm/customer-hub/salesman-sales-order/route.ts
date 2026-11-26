@@ -159,7 +159,7 @@ const submissionSchema = z.object({ header: z.object({
     order_id: z.number().int().positive().optional(), order_no: z.string().min(1).max(100),
     order_status: z.enum(["Draft", "For Approval", "For Consolidation"]),
     receipt_type: z.number().int().positive(), sales_type: z.number().int().positive(),
-    payment_terms: z.number().int().positive().nullable().optional(), po_no: z.string().trim().min(1).max(255),
+    payment_terms: z.number().int().positive().nullable().optional(), po_no: z.string().trim().max(255),
     due_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/), delivery_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
     remarks: z.string().max(5000).optional(), attachment_id: z.union([z.string(), z.number()]).nullable().optional(),
 }), items: z.array(itemSchema).min(1).max(500) });
@@ -169,7 +169,10 @@ export async function POST(req: NextRequest) {
         if (!isSameOriginSubmission(req)) throw new ScopeError("Cross-origin order submission denied");
         const context = await resolveSalesmanContext();
         const parsed = submissionSchema.safeParse(await req.json());
-        if (!parsed.success) throw new ScopeError("Invalid sales order payload", 400);
+        if (!parsed.success) {
+            const details = parsed.error.issues.map(issue => `${issue.path.join(".") || "payload"}: ${issue.message}`).join("; ");
+            throw new ScopeError(`Invalid sales order payload${details ? ` (${details})` : ""}`, 400);
+        }
         const { header, items } = parsed.data;
         const { account, customer } = await validateContext(context, header);
         const existing = header.order_id ? await scopedOrder(context, header.order_id) : null;
