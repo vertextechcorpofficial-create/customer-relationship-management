@@ -230,7 +230,7 @@ export function Matrix({ snapshot, warehouses, onRefresh }: { snapshot: Allocati
     }
     function isOrderApprovalEligible(order: AllocationOrder) {
         const allocatedLines = order.lines.filter(line => {
-            try { return quantity(values[line.id] || "0") > 0n; }
+            try { return quantity(line.ordered) > 0n && quantity(values[line.id] || "0") >= quantity(line.ordered); }
             catch { return false; }
         });
         if (!allocatedLines.length) return false;
@@ -284,7 +284,7 @@ export function Matrix({ snapshot, warehouses, onRefresh }: { snapshot: Allocati
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Confirm allocation approval</AlertDialogTitle>
-                     <AlertDialogDescription>Review the saved quantities and amounts below. Confirming moves orders with at least one positive allocation to For Consolidation. Saved allocations do not reserve or decrement physical inventory.</AlertDialogDescription>
+                 <AlertDialogDescription>Review the saved quantities and amounts below. Confirming moves orders with at least one fully allocated line to For Consolidation. Saved allocations do not reserve or decrement physical inventory.</AlertDialogDescription>
                 </AlertDialogHeader>
                 <div className="max-h-[50vh] space-y-3 overflow-y-auto">
                     {approvalPreviewOrders.map(order => <section key={order.id} className="rounded-md border p-3">

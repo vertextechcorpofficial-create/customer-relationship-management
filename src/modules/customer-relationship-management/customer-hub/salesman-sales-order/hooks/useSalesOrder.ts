@@ -138,8 +138,19 @@ export function useSalesOrder(salesOrderProvider = defaultProvider) {
         const profile = selectedSalesman as (Salesman & Record<string, unknown>) | undefined;
         const raw = profile?.sales_type_id ?? profile?.sales_type ?? profile?.operation_id ?? profile?.operation;
         const assigned = raw && typeof raw === "object" ? (raw as { id?: unknown }).id : raw;
-        setSelectedSalesTypeId(assigned === null || assigned === undefined || assigned === "" ? "" : String(assigned));
-    }, [selectedSalesman]);
+        if (assigned !== null && assigned !== undefined && assigned !== "") {
+            setSelectedSalesTypeId(String(assigned));
+        } else if (salesTypes.length > 0) {
+            // Older salesman records do not carry an operation relation. Keep
+            // submissions valid until the profile assignment is available.
+            setSelectedSalesTypeId(current => current || String(salesTypes[0].id));
+        } else {
+            // Keep the legacy configured operation while the catalog request
+            // is unavailable; an empty value makes an otherwise complete order
+            // fail schema validation.
+            setSelectedSalesTypeId(current => current || "1");
+        }
+    }, [selectedSalesman, salesTypes]);
 
     useEffect(() => {
         if (!salesmanScoped || !selectedAccountId) return;
@@ -230,10 +241,18 @@ export function useSalesOrder(salesOrderProvider = defaultProvider) {
             setBranches(Array.isArray(br) ? br : []);
             setPriceTypeModels(Array.isArray(pt) ? pt : []);
             setReceiptTypes(Array.isArray(rec) ? rec : []);
-            setSalesTypes(Array.isArray(ops) ? ops : []);
+            const normalizedSalesTypes = Array.isArray(ops) ? ops.map((operation: Record<string, unknown>) => ({
+                id: (operation.id ?? operation.operation_id) as string | number | undefined,
+                operation_name: String(operation.operation_name ?? operation.name ?? operation.operation ?? "")
+            })).filter(operation => operation.id !== undefined && operation.id !== "undefined" && operation.operation_name) : [];
+            setSalesTypes(normalizedSalesTypes as SalesType[]);
             setPaymentTermsList(Array.isArray(pterms) ? pterms : []);
 
             if (Array.isArray(rec) && rec.length > 0) setSelectedReceiptTypeId(rec[0].id.toString());
+            if (normalizedSalesTypes.length > 0) {
+                setSelectedSalesTypeId(current => current || String(normalizedSalesTypes[0].id));
+            }
+
             // Check for Auto-fill from URL
             const currentId = attachmentId || externalSalesOrderId;
 
@@ -1171,7 +1190,7 @@ export function useSalesOrder(salesOrderProvider = defaultProvider) {
     };
 
     const handleSubmitOrder = useCallback(async (forcedStatus?: string) => {
-        if (!selectedAccountId || !selectedCustomerId || !selectedSupplierId || !selectedReceiptTypeId || !selectedBranchId) {
+        if (!selectedAccountId || !selectedCustomerId || !selectedSupplierId || !selectedReceiptTypeId || !selectedSalesTypeId || !selectedBranchId) {
             toast.error("Please complete all header selections");
             return;
         }
