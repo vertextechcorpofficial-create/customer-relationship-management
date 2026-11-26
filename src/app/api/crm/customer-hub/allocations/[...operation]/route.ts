@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { AllocationError, directusPage, directusWrite, requireWarehouse, resolveAllocationAccess } from "../_lib/access";
+import { AllocationError, directusPage, directusWrite, isSameOriginRequest, requireWarehouse, resolveAllocationAccess } from "../_lib/access";
 import { allocationSnapshot, READINESS_BLOCKERS } from "../_lib/read-model";
 import { quantity, quantityText } from "@/modules/customer-relationship-management/customer-hub/sales-order-allocation/domain/quantities";
 import { canonicalUnit } from "@/modules/customer-relationship-management/customer-hub/sales-order-allocation/domain/units";
@@ -49,11 +49,11 @@ function parseIds(value: unknown): number[] {
     if (ids.some(id => !Number.isSafeInteger(id) || id <= 0) || new Set(ids).size !== ids.length) throw new AllocationError("INVALID_REQUEST", "Order IDs must be unique positive integers.", 400);
     return ids;
 }
-async function centralDraftOrders(orderIds: number[], context: Awaited<ReturnType<typeof resolveAllocationAccess>>) {
+async function allocationWarehouseDraftOrders(orderIds: number[], context: Awaited<ReturnType<typeof resolveAllocationAccess>>) {
     const rows = await directusPage<Record<string, unknown>>("sales_order", {
         order_id: { _in: orderIds }, branch_id: { _eq: context.warehouses[0].id }, order_status: { _eq: "Draft" },
     }, "order_id,branch_id,order_status,allocated_amount,modified_date,for_consolidation_at", 150, 0, "order_id");
-    if (rows.length !== orderIds.length) throw new AllocationError("ORDER_NOT_ELIGIBLE", "Every selected order must still be a Draft at Central Warehouse.", 409);
+    if (rows.length !== orderIds.length) throw new AllocationError("ORDER_NOT_ELIGIBLE", "Every selected order must still be a Draft at Warehouse - DRY22.", 409);
     return rows;
 }
 function amountForAllocation(netAmount: unknown, orderedQuantity: bigint, allocatedQuantity: bigint): number {
@@ -121,7 +121,7 @@ export async function POST(request: NextRequest, route: RouteContext) {
     try {
         const context = await resolveAllocationAccess();
         const operation = (await route.params).operation.join("/");
-        if (request.headers.get("origin") !== request.nextUrl.origin) throw new AllocationError("ORIGIN_DENIED", "Allocation writes require a same-origin request.");
+        if (!isSameOriginRequest(request)) throw new AllocationError("ORIGIN_DENIED", "Allocation writes require a same-origin request.");
         let body: Record<string, unknown>;
         try { body = await request.json(); } catch { throw new AllocationError("INVALID_REQUEST", "Invalid allocation request.", 400); }
         const warehouse = requireWarehouse(context, context.warehouses[0].id);
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest, route: RouteContext) {
             });
             if (new Set(updates.map(item => item.detailId)).size !== updates.length) throw new AllocationError("INVALID_REQUEST", "A detail line can only appear once per save.", 400);
             const orderIds = [...new Set(updates.map(item => item.orderId))];
-            const headers = await centralDraftOrders(orderIds, context);
+            const headers = await allocationWarehouseDraftOrders(orderIds, context);
             const orderHeaderMap = new Map(headers.map(row => [Number(row.order_id), row]));
             const details = await directusPage<Record<string, unknown>>("sales_order_details", { order_id: { _in: orderIds } }, "detail_id,order_id,product_id,ordered_quantity,allocated_quantity,served_quantity,unit_price,net_amount,allocated_amount", 5000, 0, "detail_id");
             const detailsById = new Map(details.map(row => [Number(row.detail_id), row]));
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest, route: RouteContext) {
 
             // Recheck the latest inventory and all Draft allocations before writing.
             const snapshot = await allocationSnapshot(context, warehouse, 1);
-            if (snapshot.inventoryError) throw new AllocationError("STOCK_UNVERIFIED", "Central Warehouse inventory could not be verified. No allocation was saved.", 503);
+            if (snapshot.inventoryError) throw new AllocationError("STOCK_UNVERIFIED", "Warehouse - DRY22 inventory could not be verified. No allocation was saved.", 503);
             const snapshotLines = new Map(snapshot.orders.flatMap(order => order.lines.map(line => [line.id, { order, line }] as const)));
             const targetChangesByStockKey = new Map<string, bigint>();
             for (const update of updates) {
@@ -173,7 +173,7 @@ export async function POST(request: NextRequest, route: RouteContext) {
                 }
                 const inventory = snapshot.inventory.filter(row => String(row.productId) === productId && String(row.supplierId ?? "unknown") === supplierId && canonicalUnit(row.unit) === unit);
                 if (inventory.length !== 1 || inventory[0].ambiguous || inventory[0].reportedStock === null) throw new AllocationError("STOCK_UNVERIFIED", `Inventory for product ${productId} is unknown or ambiguous. No allocation was saved.`, 409);
-                if (existing + delta > quantity(inventory[0].reportedStock)) throw new AllocationError("INSUFFICIENT_STOCK", `Central Warehouse reported stock is insufficient for product ${productId}. No allocation was saved.`, 409);
+                if (existing + delta > quantity(inventory[0].reportedStock)) throw new AllocationError("INSUFFICIENT_STOCK", `Warehouse - DRY22 reported stock is insufficient for product ${productId}. No allocation was saved.`, 409);
             }
 
             const lineValues = new Map<number, { quantity: bigint; amount: number }>();
@@ -188,7 +188,10 @@ export async function POST(request: NextRequest, route: RouteContext) {
                 const detail = detailsById.get(update.detailId)!;
                 const next = lineValues.get(update.detailId)!;
                 writeOperations.push({ collection: "sales_order_details", id: update.detailId,
-                    payload: { allocated_quantity: quantityText(next.quantity), allocated_amount: next.amount },
+                    // Directus stores allocation quantities as a numeric field. Keep
+                    // fixed-point arithmetic internally, then serialize the value
+                    // as a number at the API boundary like the other order flows.
+                    payload: { allocated_quantity: Number(quantityText(next.quantity)), allocated_amount: next.amount },
                     rollback: { allocated_quantity: detail.allocated_quantity ?? 0, allocated_amount: detail.allocated_amount ?? 0 } });
             }
             for (const orderId of orderIds) {
@@ -207,11 +210,11 @@ export async function POST(request: NextRequest, route: RouteContext) {
 
         if (operation === "approve") {
             const orderIds = parseIds(body.orderIds);
-            const headers = await centralDraftOrders(orderIds, context);
+            const headers = await allocationWarehouseDraftOrders(orderIds, context);
             const details = await directusPage<Record<string, unknown>>("sales_order_details", { order_id: { _in: orderIds } }, "detail_id,order_id,ordered_quantity,allocated_quantity", 5000, 0, "detail_id");
             for (const orderId of orderIds) {
                 const lines = details.filter(row => Number(row.order_id) === orderId);
-                if (!lines.length || lines.some(line => quantity(String(line.allocated_quantity ?? "0")) < quantity(String(line.ordered_quantity)))) throw new AllocationError("ALLOCATION_INCOMPLETE", `Order ${orderId} must have every line fully allocated before approval.`, 409);
+                if (!lines.length || !lines.some(line => quantity(String(line.allocated_quantity ?? "0")) > 0n)) throw new AllocationError("ALLOCATION_INCOMPLETE", `Order ${orderId} must have at least one positive allocation before approval.`, 409);
             }
             const now = new Date().toISOString();
             const operations: WriteOperation[] = headers.map(header => ({ collection: "sales_order", id: Number(header.order_id),

@@ -1,13 +1,37 @@
 import "server-only";
+import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import type { AllocationContext, Warehouse } from "@/modules/customer-relationship-management/customer-hub/sales-order-allocation/types";
 
 export const MODULE_PATH = "/crm/customer-hub/sales-order-allocation";
-export const CENTRAL_WAREHOUSE_NAME = "CENTRAL WAREHOUSE";
+export const ALLOCATION_WAREHOUSE_NAME = "WAREHOUSE - DRY22";
 export class AllocationError extends Error {
     constructor(public code: string, message: string, public status = 403) { super(message); }
 }
 export type RecordRow = Record<string, unknown>;
+
+export function isSameOriginRequest(request: NextRequest): boolean {
+    const origin = request.headers.get("origin");
+    if (!origin) return false;
+    try {
+        const submitted = new URL(origin);
+        if (!["http:", "https:"].includes(submitted.protocol)) return false;
+
+        const host = request.headers.get("host")?.trim();
+        const forwardedHost = request.headers.get("x-forwarded-host")?.split(",")[0]?.trim();
+        const forwardedProto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim().replace(/:$/, "");
+        const hosts = [host, forwardedHost, request.nextUrl.host]
+            .filter((value): value is string => Boolean(value))
+            .map(value => value.toLowerCase());
+        const protocols = [request.nextUrl.protocol.replace(/:$/, ""), forwardedProto]
+            .filter((value): value is string => Boolean(value))
+            .map(value => `${value}:`);
+
+        return hosts.includes(submitted.host.toLowerCase()) && protocols.includes(submitted.protocol.toLowerCase());
+    } catch {
+        return false;
+    }
+}
 
 export async function directusPage<T>(collection: string, filter: object, fields: string, limit = 200, offset = 0, sort = "id"): Promise<T[]> {
     const base = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/+$/, "");
@@ -75,10 +99,10 @@ export async function resolveAllocationAccess(): Promise<ReadContext> {
     // Allocation module access is the explicit capability granting warehouse-wide
     // read scope. Salesman and branch-head assignments must not narrow the queue.
     const branches = await readAll<{ id: number; branch_name: string }>("branches", {}, "id,branch_name");
-    const centralWarehouses = branches.filter(branch => branch.branch_name.trim().toUpperCase() === CENTRAL_WAREHOUSE_NAME);
-    if (centralWarehouses.length !== 1) throw new AllocationError("WAREHOUSE_DENIED", "The branches table must contain exactly one CENTRAL WAREHOUSE branch for allocation.");
+    const allocationWarehouses = branches.filter(branch => branch.branch_name.trim().toUpperCase() === ALLOCATION_WAREHOUSE_NAME);
+    if (allocationWarehouses.length !== 1) throw new AllocationError("WAREHOUSE_DENIED", "The branches table must contain exactly one WAREHOUSE - DRY22 branch for allocation.");
     return { user: { id: user.user_id, name: `${user.user_fname} ${user.user_lname}`.trim() },
-        warehouses: centralWarehouses.map(branch => ({ id: branch.id, name: branch.branch_name })), sessionToken: token,
+        warehouses: allocationWarehouses.map(branch => ({ id: branch.id, name: branch.branch_name })), sessionToken: token,
         capabilities: { read: true, preview: false, confirm: true, release: false, history: true, inventory: true } };
 }
 

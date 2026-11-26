@@ -122,7 +122,7 @@ export function ApprovalTable({ data, isLoading, onApprove, onReject, isProcessi
                             paginatedData.map(r => (
                                 <tr key={r.id} className="border-b hover:bg-gray-50 transition-colors">
                                     <td className="px-4 py-3 font-medium">{r.invoice_no}</td>
-                                    <td className="px-4 py-3 text-gray-600">{r.order_id}</td>
+                                    <td className="px-4 py-3 text-gray-600">{r.order_no}</td>
                                     <td className="px-4 py-3 text-gray-800">{r.customer_name || "—"}</td>
                                     <td className="px-4 py-3 text-gray-800">{r.requested_by_name ?? `User #${r.requested_by}`}</td>
                                     <td className="px-4 py-3 text-gray-600">

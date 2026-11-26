@@ -19,7 +19,7 @@ import { toast } from "sonner";
 export default function AllocationMatrix() {
     const workspace = useAllocationWorkspace();
     return <div className="space-y-5">
-        <div className="flex flex-wrap items-center justify-between gap-4"><div><h1 className="text-2xl font-bold tracking-tight">Sales Order Allocation</h1><p className="mt-1 text-sm text-muted-foreground">Allocate inventory to customer sales orders and approve allocations for consolidation.</p></div><div className="flex items-center gap-2"><Badge variant="secondary" className="px-3 py-1.5">{workspace.context?.warehouses[0]?.name || "Central Warehouse"}</Badge><Button variant="outline" disabled={workspace.loading} onClick={() => { if (!workspace.snapshot || window.confirm("Refresh orders and discard unsaved edits?")) workspace.refresh(); }}><RefreshCw className={`mr-2 h-4 w-4 ${workspace.loading ? "animate-spin" : ""}`} />Refresh</Button></div></div>
+        <div className="flex flex-wrap items-center justify-between gap-4"><div><h1 className="text-2xl font-bold tracking-tight">Sales Order Allocation</h1><p className="mt-1 text-sm text-muted-foreground">Allocate inventory to customer sales orders and approve allocations for consolidation.</p></div><div className="flex items-center gap-2"><Badge variant="secondary" className="px-3 py-1.5">{workspace.context?.warehouses[0]?.name || "Warehouse - DRY22"}</Badge><Button variant="outline" disabled={workspace.loading} onClick={() => { if (!workspace.snapshot || window.confirm("Refresh orders and discard unsaved edits?")) workspace.refresh(); }}><RefreshCw className={`mr-2 h-4 w-4 ${workspace.loading ? "animate-spin" : ""}`} />Refresh</Button></div></div>
         {workspace.error && <p role="alert" className="text-sm text-destructive">{workspace.error}</p>}
         {workspace.loading && <p role="status" className="text-sm text-muted-foreground">Loading orders and inventory…</p>}
         {workspace.snapshot && <Matrix key={`${workspace.warehouseId}:${workspace.snapshot.readAt}`} snapshot={workspace.snapshot} warehouses={workspace.context?.warehouses || []} onRefresh={workspace.refresh} />}
@@ -99,7 +99,6 @@ export function Matrix({ snapshot, warehouses, onRefresh }: { snapshot: Allocati
     const allRows = [...rowMap.values()].sort((a, b) => warehouseName(a.warehouseId).localeCompare(warehouseName(b.warehouseId)) || a.product.localeCompare(b.product) || a.unit.localeCompare(b.unit));
     const rows = allRows.filter(row => (!search || `${row.product} ${row.sku} ${row.supplier}`.toLowerCase().includes(search.toLowerCase())));
 
-    let invalid = false;
     const competingByRow = new Map<string, { order: AllocationOrder; line: AllocationOrder["lines"][number] }[]>();
     for (const order of snapshot.orders) for (const line of order.lines) {
         const key = `${order.warehouseId}:${line.productId}:${order.supplierId ?? "unknown"}:${line.unit}`;
@@ -117,12 +116,10 @@ export function Matrix({ snapshot, warehouses, onRefresh }: { snapshot: Allocati
             if (!raw) continue;
             try {
                 const assigned = quantity(raw);
-                if (!/^\d+(?:\.\d{1,6})?$/.test(raw) || assigned > quantity(line.ordered) || assigned < quantity(line.served)) invalid = true;
                 planned += assigned;
                 if (assigned > 0n) usedLines++;
-            } catch { invalid = true; }
+            } catch { /* The edited field displays its own validation state. */ }
         }
-        if (stock === null && planned > 0n || stock !== null && planned > stock) invalid = true;
         metricsByRow.set(row.key, { stock, planned, remaining: stock === null ? null : stock - planned, usedLines });
     }
     const rowVirtualizer = useVirtualizer({ count: rows.length, getScrollElement: () => scrollRef.current, estimateSize: () => 68, overscan: 8 });
@@ -196,7 +193,10 @@ export function Matrix({ snapshot, warehouses, onRefresh }: { snapshot: Allocati
         return owner ? [{ orderId: owner.order.id, detailId, quantity: value || "0" }] : [];
     });
     async function savePlan() {
-        if (!dirtyUpdates.length || invalid) return;
+        // The API is the final authority for stock and stale-order checks. Do
+        // not silently swallow a save because another visible row is invalid;
+        // submit the changed lines and show the server's actionable response.
+        if (!dirtyUpdates.length) return;
         setSaving(true); setOperationError("");
         try {
             await allocationProvider.saveAllocations(dirtyUpdates);
@@ -228,15 +228,13 @@ export function Matrix({ snapshot, warehouses, onRefresh }: { snapshot: Allocati
             setOperationError(error instanceof Error ? error.message : "Approval failed; no status change was confirmed.");
         } finally { setSaving(false); }
     }
-    function isOrderFullyAllocated(order: AllocationOrder) {
-        return order.lines.length > 0 && order.lines.every(line => {
-            try { return quantity(values[line.id] || "0") >= quantity(line.ordered); }
+    function isOrderApprovalEligible(order: AllocationOrder) {
+        const allocatedLines = order.lines.filter(line => {
+            try { return quantity(values[line.id] || "0") > 0n; }
             catch { return false; }
         });
-    }
-    function isOrderApprovalEligible(order: AllocationOrder) {
-        if (!isOrderFullyAllocated(order)) return false;
-        return order.lines.every(line => {
+        if (!allocatedLines.length) return false;
+        return allocatedLines.every(line => {
             const key = `${order.warehouseId}:${line.productId}:${order.supplierId ?? "unknown"}:${line.unit}`;
             const metric = metricsByRow.get(key);
             return !!metric && metric.stock !== null && metric.planned <= metric.stock;
@@ -272,7 +270,7 @@ export function Matrix({ snapshot, warehouses, onRefresh }: { snapshot: Allocati
         
         {snapshot.inventoryError && <p role="alert" className="text-sm text-destructive">Some warehouse inventory could not be verified. Quantities for affected rows are disabled.</p>}
         <OrderPagination pageIndex={safePageIndex} pageCount={pageCount} pageSize={pageSize} total={orders.length} onPage={setPageIndex} />
-        <div ref={scrollRef} className="max-h-[68vh] w-full overflow-auto rounded-xl border"><table style={{ width: `max(100%, ${430 + columns.length * 220 + summaryColumnWidth * 3}px)` }} className="min-w-max table-fixed border-separate border-spacing-0 text-xs"><thead className="sticky top-0 z-20 bg-muted"><tr className="bg-muted"><th rowSpan={2} className="sticky left-0 z-40 w-[280px] min-w-[280px] max-w-[280px] border-b border-r bg-muted p-2 text-left">Product / SKU</th><th rowSpan={2} className="sticky left-[280px] z-40 w-[70px] min-w-[70px] max-w-[70px] border-b bg-muted p-2 text-left">UOM</th><th rowSpan={2} className="sticky left-[350px] z-40 w-[120px] min-w-[120px] max-w-[120px] border-b bg-muted p-2 text-right">Reported Stock</th>{customerGroups.map((group, index) => <th key={`${group.customer}-${index}`} colSpan={group.count} style={{ width: `${orderColumnWidth * group.count}px` }} className="min-w-[220px] border-b border-l bg-blue-50 p-2 text-center text-blue-950" aria-label="Customer orders" />)}<th rowSpan={2} style={{ width: summaryColumnWidth }} className="border-b border-l bg-muted p-2 text-right">Allocated · all orders</th><th rowSpan={2} style={{ width: summaryColumnWidth }} className="border-b border-l bg-muted p-2 text-right">Left in plan</th><th rowSpan={2} style={{ width: summaryColumnWidth }} className="border-b border-l bg-muted p-2 text-left">Validation</th></tr><tr className="bg-muted/80">{columns.map(({ order }) => <th key={order.id} className="w-[280px] min-w-[280px] max-w-[280px] border-b border-l bg-muted/80 p-2 text-left"><div className="flex items-center justify-between gap-2"><span className="font-semibold">{order.number}</span><input type="checkbox" aria-label={`Select ${order.number} for approval`} checked={selectedApprovalIds.includes(order.id)} disabled={saving || dirtyUpdates.length > 0 || !isOrderApprovalEligible(order)} title={!isOrderApprovalEligible(order) ? "This order is incomplete or its shared stock pool is unverified/over-planned." : undefined} onChange={event => setSelectedApprovalIds(current => event.target.checked ? [...new Set([...current, order.id])] : current.filter(id => id !== order.id))} /></div><span className="block text-[11px] font-normal text-muted-foreground">{order.orderDate.slice(0, 10)} · {order.workflow}</span><Button className="mt-1 h-7 px-2 text-[11px]" size="sm" variant="outline" disabled={saving || dirtyUpdates.length > 0 || !isOrderApprovalEligible(order)} title={!isOrderApprovalEligible(order) ? "This order is incomplete or its shared stock pool is unverified/over-planned." : undefined} onClick={() => requestApproval([order.id])}>{isOrderFullyAllocated(order) ? "Approve → Consolidation" : "Allocate all lines first"}</Button></th>)}</tr></thead><tbody>
+        <div ref={scrollRef} className="max-h-[68vh] w-full overflow-auto rounded-xl border"><table style={{ width: `max(100%, ${430 + columns.length * 220 + summaryColumnWidth * 3}px)` }} className="min-w-max table-fixed border-separate border-spacing-0 text-xs"><thead className="sticky top-0 z-20 bg-muted"><tr className="bg-muted"><th rowSpan={2} className="sticky left-0 z-40 w-[280px] min-w-[280px] max-w-[280px] border-b border-r bg-muted p-2 text-left">Product / SKU</th><th rowSpan={2} className="sticky left-[280px] z-40 w-[70px] min-w-[70px] max-w-[70px] border-b bg-muted p-2 text-left">UOM</th><th rowSpan={2} className="sticky left-[350px] z-40 w-[120px] min-w-[120px] max-w-[120px] border-b bg-muted p-2 text-right">Reported Stock</th>{customerGroups.map((group, index) => <th key={`${group.customer}-${index}`} colSpan={group.count} style={{ width: `${orderColumnWidth * group.count}px` }} className="min-w-[220px] border-b border-l bg-blue-50 p-2 text-center text-blue-950" aria-label="Customer orders" />)}<th rowSpan={2} style={{ width: summaryColumnWidth }} className="border-b border-l bg-muted p-2 text-right">Allocated · all orders</th><th rowSpan={2} style={{ width: summaryColumnWidth }} className="border-b border-l bg-muted p-2 text-right">Left in plan</th><th rowSpan={2} style={{ width: summaryColumnWidth }} className="border-b border-l bg-muted p-2 text-left">Validation</th></tr><tr className="bg-muted/80">{columns.map(({ order }) => <th key={order.id} className="w-[280px] min-w-[280px] max-w-[280px] border-b border-l bg-muted/80 p-2 text-left"><div className="flex items-center justify-between gap-2"><span className="font-semibold">{order.number}</span><input type="checkbox" aria-label={`Select ${order.number} for approval`} checked={selectedApprovalIds.includes(order.id)} disabled={saving || dirtyUpdates.length > 0 || !isOrderApprovalEligible(order)} title={!isOrderApprovalEligible(order) ? "This order is incomplete or its shared stock pool is unverified/over-planned." : undefined} onChange={event => setSelectedApprovalIds(current => event.target.checked ? [...new Set([...current, order.id])] : current.filter(id => id !== order.id))} /></div><span className="block text-[11px] font-normal text-muted-foreground">{order.orderDate.slice(0, 10)} · {order.workflow}</span><Button className="mt-1 h-7 px-2 text-[11px]" size="sm" variant="outline" disabled={saving || dirtyUpdates.length > 0 || !isOrderApprovalEligible(order)} title={!isOrderApprovalEligible(order) ? "This order is incomplete or its shared stock pool is unverified/over-planned." : undefined} onClick={() => requestApproval([order.id])}>{isOrderApprovalEligible(order) ? "Approve → Consolidation" : "Allocate at least one line"}</Button></th>)}</tr></thead><tbody>
             {topSpacer > 0 && <tr><td colSpan={6 + columns.length} style={{ height: topSpacer, padding: 0, border: 0 }} /></tr>}
             {virtualRows.map(virtualRow => renderRow(rows[virtualRow.index], virtualRow.index))}
             {bottomSpacer > 0 && <tr><td colSpan={6 + columns.length} style={{ height: bottomSpacer, padding: 0, border: 0 }} /></tr>}
@@ -281,16 +279,16 @@ export function Matrix({ snapshot, warehouses, onRefresh }: { snapshot: Allocati
         <OrderPagination pageIndex={safePageIndex} pageCount={pageCount} pageSize={pageSize} total={orders.length} onPage={setPageIndex} />
          {operationError && <p role="alert" className="rounded-lg border border-destructive/30 p-3 text-sm text-destructive">{operationError} Local edits were reverted to the last saved values. If rollback was incomplete, refresh and verify before retrying.</p>}
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border bg-muted/40 px-3 py-2 text-xs"><span>{rows.length} products · {allRows.length} product/stock rows</span><span className="font-semibold">Preview total · all orders: ₱{totalAmount.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span></div>
-        <div className="sticky bottom-2 z-30 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-background/95 p-3 shadow-lg backdrop-blur"><div className="min-w-48"><p className="text-sm font-semibold">Editing Draft allocations</p><p className="text-xs text-muted-foreground">{selectedApprovalIds.length} selected · {dirtyUpdates.length} unsaved · {eligibleSelected} selected eligible</p></div><div className="flex flex-wrap items-center gap-2"><Button variant="outline" disabled={!dirtyUpdates.length || saving} onClick={() => { setValues({ ...savedValues }); setFieldErrors({}); }}>Discard edits</Button><Button disabled={invalid || !dirtyUpdates.length || saving} onClick={savePlan}>{saving ? "Saving…" : `Save allocations (${dirtyUpdates.length})`}</Button><Button variant="secondary" disabled={!selectedApprovalIds.length || eligibleSelected !== selectedApprovalIds.length || dirtyUpdates.length > 0 || saving} title={selectedApprovalIds.length && eligibleSelected !== selectedApprovalIds.length ? "Select fully allocated eligible orders; save all edits first." : dirtyUpdates.length ? "Save pending changes before approval." : undefined} onClick={() => requestApproval(selectedApprovalIds)}><CheckCheck className="mr-2 h-4 w-4" />Approve selected ({selectedApprovalIds.length}) → For Consolidation</Button></div></div>
+         <div className="sticky bottom-2 z-30 flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-background/95 p-3 shadow-lg backdrop-blur"><div className="min-w-48"><p className="text-sm font-semibold">Editing Draft allocations</p><p className="text-xs text-muted-foreground">{selectedApprovalIds.length} selected · {dirtyUpdates.length} unsaved · {eligibleSelected} selected eligible</p></div><div className="flex flex-wrap items-center gap-2"><Button variant="outline" disabled={!dirtyUpdates.length || saving} onClick={() => { setValues({ ...savedValues }); setFieldErrors({}); }}>Discard edits</Button><Button disabled={!dirtyUpdates.length || saving} onClick={savePlan}>{saving ? "Saving…" : `Save allocations (${dirtyUpdates.length})`}</Button><Button variant="secondary" disabled={!selectedApprovalIds.length || eligibleSelected !== selectedApprovalIds.length || dirtyUpdates.length > 0 || saving} title={selectedApprovalIds.length && eligibleSelected !== selectedApprovalIds.length ? "Select orders with at least one positive allocation; save all edits first." : dirtyUpdates.length ? "Save pending changes before approval." : undefined} onClick={() => requestApproval(selectedApprovalIds)}><CheckCheck className="mr-2 h-4 w-4" />Approve selected ({selectedApprovalIds.length}) → For Consolidation</Button></div></div>
         <AlertDialog open={approvalPreviewIds.length > 0} onOpenChange={open => { if (!open && !saving) setApprovalPreviewIds([]); }}>
             <AlertDialogContent>
                 <AlertDialogHeader>
                     <AlertDialogTitle>Confirm allocation approval</AlertDialogTitle>
-                    <AlertDialogDescription>Review the saved quantities and amounts below. Confirming moves these fully allocated orders to For Consolidation. Saved allocations do not reserve or decrement physical inventory.</AlertDialogDescription>
+                     <AlertDialogDescription>Review the saved quantities and amounts below. Confirming moves orders with at least one positive allocation to For Consolidation. Saved allocations do not reserve or decrement physical inventory.</AlertDialogDescription>
                 </AlertDialogHeader>
                 <div className="max-h-[50vh] space-y-3 overflow-y-auto">
                     {approvalPreviewOrders.map(order => <section key={order.id} className="rounded-md border p-3">
-                        <div className="flex flex-wrap justify-between gap-2"><div><p className="font-semibold">{order.number}</p><p className="text-xs text-muted-foreground">{order.customer} · {order.orderDate.slice(0, 10)}</p></div><Badge variant="outline">Draft · fully allocated</Badge></div>
+                         <div className="flex flex-wrap justify-between gap-2"><div><p className="font-semibold">{order.number}</p><p className="text-xs text-muted-foreground">{order.customer} · {order.orderDate.slice(0, 10)}</p></div><Badge variant="outline">Draft · item allocated</Badge></div>
                         <ul className="mt-2 divide-y text-sm">{order.lines.map(line => {
                             const qty = values[line.id] ?? line.legacyAllocated;
                             const amount = allocationValue(line, qty);
