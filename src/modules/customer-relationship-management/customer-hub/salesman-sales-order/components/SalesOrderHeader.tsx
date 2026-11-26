@@ -323,12 +323,12 @@ export function SalesOrderHeader({
 
                     <div className="flex flex-col gap-1.5">
                         <label className="text-xs font-bold uppercase text-muted-foreground truncate">Sales Type</label>
-                        <Select value={selectedSalesTypeId} onValueChange={onSalesTypeChange}>
-                            <SelectTrigger className="h-9 text-xs"><SelectValue placeholder="Type" /></SelectTrigger>
-                            <SelectContent>
-                                {salesTypes.map(t => <SelectItem key={t.id} value={t.id.toString()}>{t.operation_name}</SelectItem>)}
-                            </SelectContent>
-                        </Select>
+                         <Select value={selectedSalesTypeId} onValueChange={onSalesTypeChange} disabled={!selectedSalesman || !selectedSalesTypeId}>
+                             <SelectTrigger className="h-9 text-xs"><SelectValue placeholder={selectedSalesman ? "Not assigned" : "Select salesman first"} /></SelectTrigger>
+                             <SelectContent>
+                                 {salesTypes.filter(t => t.id.toString() === selectedSalesTypeId).map(t => <SelectItem key={t.id} value={t.id.toString()}>{t.operation_name}</SelectItem>)}
+                             </SelectContent>
+                         </Select>
                     </div>
                 </div>
 
