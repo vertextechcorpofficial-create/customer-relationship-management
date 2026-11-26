@@ -132,6 +132,15 @@ export function useSalesOrder(salesOrderProvider = defaultProvider) {
     const selectedSalesType = useMemo(() => Array.isArray(salesTypes) ? salesTypes.find(st => st.id.toString() === selectedSalesTypeId) : undefined, [salesTypes, selectedSalesTypeId]);
     const selectedBranch = useMemo(() => Array.isArray(branches) ? branches.find(b => b.id.toString() === selectedBranchId) : undefined, [branches, selectedBranchId]);
 
+    // Sales type belongs to the salesman profile, not to the unrestricted
+    // operation catalog. Normalize the supported Directus relation shapes.
+    useEffect(() => {
+        const profile = selectedSalesman as (Salesman & Record<string, unknown>) | undefined;
+        const raw = profile?.sales_type_id ?? profile?.sales_type ?? profile?.operation_id ?? profile?.operation;
+        const assigned = raw && typeof raw === "object" ? (raw as { id?: unknown }).id : raw;
+        setSelectedSalesTypeId(assigned === null || assigned === undefined || assigned === "" ? "" : String(assigned));
+    }, [selectedSalesman]);
+
     useEffect(() => {
         if (!salesmanScoped || !selectedAccountId) return;
         let active = true;
@@ -225,8 +234,6 @@ export function useSalesOrder(salesOrderProvider = defaultProvider) {
             setPaymentTermsList(Array.isArray(pterms) ? pterms : []);
 
             if (Array.isArray(rec) && rec.length > 0) setSelectedReceiptTypeId(rec[0].id.toString());
-            if (Array.isArray(ops) && ops.length > 0) setSelectedSalesTypeId(ops[0].id.toString());
-
             // Check for Auto-fill from URL
             const currentId = attachmentId || externalSalesOrderId;
 

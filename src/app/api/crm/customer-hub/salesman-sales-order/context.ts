@@ -16,6 +16,11 @@ export interface Account {
     price_type?: string;
     salesman_name: string;
     salesman_code: string;
+    sales_type?: number | string | { id?: number | string } | null;
+    sales_type_id?: number | string | null;
+    operation?: number | string | { id?: number | string } | null;
+    operation_id?: number | string | null;
+    [key: string]: unknown;
 }
 export interface CustomerRecord {
     id: number;
@@ -64,8 +69,7 @@ export async function resolveSalesmanContext(): Promise<SalesmanContext> {
     if (modules.length !== 1) throw new ScopeError("Salesman Sales Order must be registered and activated in module permissions");
     const grants = await directus<{ id: number }>("user_access_modules", { user_id: { _eq: user.user_id }, module_id: { _eq: modules[0].id } }, "id", 1);
     if (!grants.length && payload?.role !== "ADMIN") throw new ScopeError("Salesman Sales Order permission is required");
-    const accounts = await directus<Account>("salesman", { employee_id: { _eq: user.user_id }, isActive: { _eq: true } },
-        "id,employee_id,encoder_id,salesman_name,salesman_code,branch_code,supplier_code,price_type,price_type_id,truck_plate");
+    const accounts = await directus<Account>("salesman", { employee_id: { _eq: user.user_id }, isActive: { _eq: true } }, "*");
     if (!accounts.length) throw new ScopeError("No active owned salesman accounts. Encoder assignments do not grant salesman access.");
     return { user, accounts };
 }
